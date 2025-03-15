@@ -51,6 +51,8 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		logger.error("Number of colors does not match number of groups")
 		sys.exit(1)
 	# Plot coverage for each sample
+	junc_reads_max = max([max([junc_reads for junc_ID, junc_reads in region_junctions.items()]) for region_junctions in junctions_dict.values()])
+	junc_reads_min = min([min([junc_reads for junc_ID, junc_reads in region_junctions.items()]) for region_junctions in junctions_dict.values()])
 	for i, sample_name in enumerate(sample_order):
 		ax = fig.add_subplot(gs[i, 0])
 		cov = coverage_dict[sample_name]
@@ -99,9 +101,8 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 					return 0.00001
 			arc_height = dist * set_arc_height_factor(dist)  # Reduce height
 			# Set linewidth according to the number of reads
-			linewidth_factor = 0.001
-			arc_linewidth = junc_reads * linewidth_factor
-			arc_linewidth = max(1, arc_linewidth)
+			linewidth_factor = (2 - 1) / (junc_reads_max - junc_reads_min) if junc_reads_max != junc_reads_min else 1 # Scale linewidth from 1 to 2
+			arc_linewidth = 1 + (junc_reads - junc_reads_min) * linewidth_factor
 			# Create an Arc patch
 			arc = Arc(
 				(mx, my),
