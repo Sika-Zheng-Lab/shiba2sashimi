@@ -14,7 +14,7 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 	"""
 	if font_family:
 		matplotlib.rcParams["font.family"] = font_family
-	chrom = f"chr{chrom}" if not chrom.startswith("chr") and chrom.isdigit() else chrom
+	chrom = f"chr{chrom}" if not chrom.startswith("chr") and (chrom.isdigit() or chrom in ["X", "Y", "M", "MT"]) else chrom
 	# Set figure size
 	n_samples = len(coverage_dict)
 	fig_height = 1 * n_samples
