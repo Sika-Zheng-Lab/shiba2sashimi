@@ -25,7 +25,7 @@ def coord2int(coordinate):
 		sys.exit(1)
 	return chrom, start, end
 
-def posid2int(positional_id, shiba_path) -> tuple:
+def posid2int(positional_id, shiba_path, extend_up, extend_down) -> tuple:
 	"""
 	Get chromosome, start, and end of the target region and junction coordinates from positional ID.
 	"""
@@ -67,7 +67,7 @@ def posid2int(positional_id, shiba_path) -> tuple:
 		sys.exit(1)
 	# Get chromosome, start, and end from positional ID
 	chrom = positional_id.split("@")[1].replace("chr", "")
-	# Extend 1kb upstream and downstream
+	# Extend upstream and downstream
 	intron_key_map = {
 		"SE": "intron_c",
 		"FIVE": "intron_b",
@@ -81,14 +81,14 @@ def posid2int(positional_id, shiba_path) -> tuple:
 	if event_type in intron_key_map:
 		intron_keys = intron_key_map[event_type]
 		if isinstance(intron_keys, list):
-			start = int(psi_file_col_dict[intron_keys[0]].split(":")[1].split("-")[0]) - 1000
-			end = int(psi_file_col_dict[intron_keys[1]].split(":")[1].split("-")[1]) + 1000
+			start = int(psi_file_col_dict[intron_keys[0]].split(":")[1].split("-")[0]) - extend_down
+			end = int(psi_file_col_dict[intron_keys[1]].split(":")[1].split("-")[1]) + extend_up
 		else:
 			intron = psi_file_col_dict[intron_keys]
 			if event_type == "MSE":
 				intron = intron.split(";")[-1]
-			start = int(intron.split(":")[1].split("-")[0]) - 1000
-			end = int(intron.split(":")[1].split("-")[1]) + 1000
+			start = int(intron.split(":")[1].split("-")[0]) - extend_down
+			end = int(intron.split(":")[1].split("-")[1]) + extend_up
 		if start < 0:
 			start = 0
 	else:

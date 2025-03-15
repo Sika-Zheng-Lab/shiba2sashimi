@@ -25,6 +25,8 @@ def parse_args():
 	parser.add_argument("--colors", required = False, help = "Colors for each group. e.g. red,orange,blue")
 	parser.add_argument("--exon_s", default = 1, type = int, help = "How much to scale down exons. Default: %(default)s")
 	parser.add_argument("--intron_s", default = 5, type = int, help = "How much to scale down introns. Default: %(default)s")
+	parser.add_argument("--extend_up", default = 1000, type = int, help = "Extend the plot upstream. Only used when not providing coordinates. Default: %(default)s")
+	parser.add_argument("--extend_down", default = 1000, type = int, help = "Extend the plot downstream. Only used when not providing coordinates. Default: %(default)s")
 	parser.add_argument("--font_family", help = "Font family for labels")
 	parser.add_argument("-v", "--verbose", action = "store_true", help = "Increase verbosity")
 	args = parser.parse_args()
@@ -64,7 +66,7 @@ def main():
 	elif args.id:
 		logger.debug(f"Extracting coordinates from positional ID: {args.id}")
 		# Get coordinates from positional ID
-		chrom, start, end, junction_list = bams.posid2int(args.id, args.shiba)
+		chrom, start, end, junction_list = bams.posid2int(args.id, args.shiba, args.extend_up, args.extend_down)
 		logger.debug(f"junction_list: {junction_list}")
 	else:
 		logger.error("Please provide either positional ID or coordinate to define the target region")

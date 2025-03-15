@@ -16,7 +16,7 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		matplotlib.rcParams["font.family"] = font_family
 	# Set figure size
 	n_samples = len(coverage_dict)
-	fig_height = 2 * n_samples
+	fig_height = 1 * n_samples
 	fig_width = 8
 	fig = plt.figure(figsize=(fig_width, fig_height))
 	# Subplots for coverage
@@ -116,6 +116,10 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 			ax.set_xticklabels([])
 		else:
 			ax.set_xlabel(f"Genomic coordinate ({chrom})", fontsize=10)
+		# Despine top, right, and bottom
+		ax.spines['top'].set_visible(False)
+		ax.spines['right'].set_visible(False)
+		ax.spines['bottom'].set_visible(False)
 	if pos_id:
 		plt.suptitle(f"{chrom}:{start}-{end} ({strand})\n{pos_id}", fontsize=12)
 	else:
