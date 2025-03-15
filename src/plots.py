@@ -28,7 +28,7 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		for group in groups_list:
 			sample_group_order = [sample for sample, info in experiment_dict.items() if info["group"] == group]
 			if samples:
-				sample_group_order = sorted(sample_group_order, key=samples.index)
+				sample_group_order = sorted(sample_group_order, key=samples.split(",").index)
 			sample_order += sample_group_order
 	else:
 		groups_list = []
@@ -39,7 +39,7 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 				groups_list.append(group)
 				seen.add(group)
 		if samples:
-			sample_order = samples
+			sample_order = samples.split(",")
 		else:
 			sample_order = list(experiment_dict.keys())
 	# Set colors for each group
@@ -120,9 +120,10 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		ax.spines['top'].set_visible(False)
 		ax.spines['right'].set_visible(False)
 		ax.spines['bottom'].set_visible(False)
+	# Put title on the top subplot
 	if pos_id:
-		plt.suptitle(f"{chrom}:{start}-{end} ({strand})\n{pos_id}", fontsize=12)
+		fig.suptitle(f"{chrom}:{start}-{end} ({strand})\n{pos_id}", fontsize=12, y=1.4 - 0.1 * n_samples)
 	else:
-		plt.suptitle(f"{chrom}:{start}-{end} ({strand})", fontsize=12)
+		fig.suptitle(f"{chrom}:{start}-{end} ({strand})", fontsize=12, y=1.4 - 0.1 * n_samples)
 	# Save plot
 	plt.savefig(output, dpi=800, bbox_inches="tight")

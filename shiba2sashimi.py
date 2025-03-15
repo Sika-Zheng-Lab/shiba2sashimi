@@ -21,7 +21,7 @@ def parse_args():
 	parser.add_argument("-c", "--coordinate", required = False, help = "Coordinates of the region to plot")
 	parser.add_argument("--strand", required = False, help = "Strand of the event to plot")
 	parser.add_argument("--samples", required = False, help = "Samples to plot. e.g. sample1,sample2,sample3 Default: all samples in the experiment table")
-	parser.add_argument("--groups", required = False, help = "Groups to plot. e.g. group1,group2,group3 Default: all groups in the experiment table")
+	parser.add_argument("--groups", required = False, help = "Groups to plot. e.g. group1,group2,group3 Default: all groups in the experiment table. Overrides --samples")
 	parser.add_argument("--colors", required = False, help = "Colors for each group. e.g. red,orange,blue")
 	parser.add_argument("--exon_s", default = 1, type = int, help = "How much to scale down exons. Default: %(default)s")
 	parser.add_argument("--intron_s", default = 5, type = int, help = "How much to scale down introns. Default: %(default)s")
@@ -75,7 +75,15 @@ def main():
 	# Get coverage of the target region for each sample
 	logger.info("Calculating coverage for each sample")
 	coverage_dict = {}
+	if args.groups and args.samples:
+		logger.info("Both --samples and --groups are provided. Ignoring --samples")
 	for sample, info in experiment_dict.items():
+		if args.groups:
+			if info["group"] not in args.groups.split(","):
+				continue
+		elif args.samples:
+			if sample not in args.samples.split(","):
+				continue
 		logger.info(f"Calculating coverage for {sample}")
 		coverage = bams.get_coverage(info["bam"], chrom, start, end)
 		coverage_dict[sample] = coverage
@@ -92,7 +100,7 @@ def main():
 		coverage_dict = coverage_dict,
 		junctions_dict = junctions_dict,
 		experiment_dict = experiment_dict,
-		samples = args.samples,
+		samples = args.samples if not args.groups else ",".join(coverage_dict.keys()),
 		groups = args.groups,
 		colors = args.colors,
 		chrom = chrom,
