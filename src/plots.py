@@ -137,15 +137,11 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		ax.spines['right'].set_visible(False)
 		ax.spines['bottom'].set_visible(False)
 	# Put title on the top subplot
+	title = f"{chrom}:{start}-{end}"
+	if strand:
+		title += f" ({strand})"
 	if pos_id:
-		if strand:
-			fig.suptitle(f"{chrom}:{start}-{end} ({strand})\n{pos_id}", fontsize=12, y=1.4 - 0.1 * n_samples)
-		else:
-			fig.suptitle(f"{chrom}:{start}-{end}\n{pos_id}", fontsize=12, y=1.4 - 0.1 * n_samples)
-	else:
-		if strand:
-			fig.suptitle(f"{chrom}:{start}-{end} ({strand})", fontsize=12, y=1.4 - 0.1 * n_samples)
-		else:
-			fig.suptitle(f"{chrom}:{start}-{end}", fontsize=12, y=1.4 - 0.1 * n_samples)
+		title += f"\n{pos_id}"
+	fig.suptitle(title, fontsize=12, y=1.4 - 0.1 * n_samples)
 	# Save plot
 	plt.savefig(output, dpi=800, bbox_inches="tight")
