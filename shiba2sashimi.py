@@ -3,7 +3,7 @@ import os
 import sys
 import logging
 import time
-from src import tables, bams, plots
+from src import tables, bams, plots, junc, utils
 # Configure logger
 logger = logging.getLogger(__name__)
 # Set version
@@ -62,11 +62,11 @@ def main():
 	if args.coordinate:
 		logger.debug(f"Using provided coordinate: {args.coordinate}")
 		# Get coordinates from provided coordinate
-		chrom, start, end = bams.coord2int(args.coordinate)
+		chrom, start, end = utils.coord2int(args.coordinate)
 	elif args.id:
 		logger.debug(f"Extracting coordinates from positional ID: {args.id}")
 		# Get coordinates from positional ID
-		chrom, start, end, junction_list = bams.posid2int(args.id, args.shiba, args.extend_up, args.extend_down)
+		chrom, start, end, junction_list = utils.posid2int(args.id, args.shiba, args.extend_up, args.extend_down)
 		logger.debug(f"junction_list: {junction_list}")
 	else:
 		logger.error("Please provide either positional ID or coordinate to define the target region")
@@ -91,7 +91,7 @@ def main():
 	# Get information of target junctions
 	logger.info("Extracting junctions in the target region")
 	logger.debug(f"Target region: {chrom}:{start}-{end}")
-	junctions_dict = bams.extract_junctions_in_region(args.shiba, chrom, start, end, junction_list)
+	junctions_dict = junc.extract_junctions_in_region(args.shiba, chrom, start, end, junction_list)
 	logger.debug(f"Junctions in the target region: {junctions_dict}")
 
 	# Create Sashimi plot
