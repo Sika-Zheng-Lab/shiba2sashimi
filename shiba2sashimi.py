@@ -66,7 +66,7 @@ def main():
 	elif args.id:
 		logger.debug(f"Extracting coordinates from positional ID: {args.id}")
 		# Get coordinates from positional ID
-		chrom, start, end, strand, junction_list = utils.posid2int(args.id, args.shiba, args.extend_up, args.extend_down)
+		chrom, start, end, strand, junction_list, junction_direction_dict = utils.posid2int(args.id, args.shiba, args.extend_up, args.extend_down)
 		logger.debug(f"junction_list: {junction_list}")
 	else:
 		logger.error("Please provide either positional ID or coordinate to define the target region")
@@ -111,6 +111,7 @@ def main():
 		intron_s = args.intron_s,
 		pos_id = args.id if args.id else None,
 		strand = strand if strand else None,
+		junction_direction_dict = junction_direction_dict if args.id else None,
 		psi_values_dict = psi_values_dict if args.id else None,
 		font_family = args.font_family if args.font_family else None
 	)

@@ -98,20 +98,32 @@ def posid2int(positional_id, shiba_path, extend_up, extend_down) -> tuple:
 
 	# Get junction coordinates
 	junction_list = []
+	junction_direction_dict = {}
 	junction_key_map = {
-		"SE": ["intron_a", "intron_b", "intron_c"],
-		"FIVE": ["intron_a", "intron_b"],
-		"THREE": ["intron_a", "intron_b"],
-		"MXE": ["intron_a1", "intron_a2", "intron_b1", "intron_b2"],
-		"RI": ["intron_a"],
-		"AFE": ["intron_a", "intron_b"],
-		"ALE": ["intron_a", "intron_b"],
+		"SE": {"up": ["intron_c"], "down": ["intron_a", "intron_b"]},
+		"FIVE": {"up": ["intron_b"], "down": ["intron_a"]},
+		"THREE": {"up": ["intron_b"], "down": ["intron_a"]},
+		"MXE": {"up": ["intron_b1", "intron_b2"], "down": ["intron_a1", "intron_a2"]},
+		"RI": "intron_a",
+		"AFE": {"up": ["intron_a"], "down": ["intron_b"]},
+		"ALE": {"up": ["intron_a"], "down": ["intron_b"]},
 		"MSE": "intron"
 	}
 	junction_keys = junction_key_map[event_type]
 	if event_type == "MSE":
-		junction_list += psi_file_col_dict[junction_keys].split(";")
+		for i, j in enumerate(psi_file_col_dict[junction_keys].split(";")):
+			if i == len(psi_file_col_dict[junction_keys].split(";")) - 1:
+				junction_list += [j]
+				junction_direction_dict[j] = "up"
+			else:
+				junction_list += [j]
+				junction_direction_dict[j] = "down"
+	elif event_type == "RI":
+		junction_list += [psi_file_col_dict[junction_keys]]
+		junction_direction_dict[psi_file_col_dict[junction_keys]] = "up"
 	else:
-		for key in junction_keys:
-			junction_list += [psi_file_col_dict[key]]
-	return chrom, start, end, strand, junction_list
+		for direction in ["up", "down"]:
+			for key in junction_keys[direction]:
+				junction_list += [psi_file_col_dict[key]]
+				junction_direction_dict[psi_file_col_dict[key]] = direction
+	return chrom, start, end, strand, junction_list, junction_direction_dict

@@ -8,7 +8,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.patches import Arc
 
-def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, chrom, start, end, output, exon_s = 1, intron_s = 1, pos_id = None, strand = None, psi_values_dict = None, font_family = None):
+def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, chrom, start, end, output, exon_s = 1, intron_s = 1, pos_id = None, strand = None, junction_direction_dict = None, psi_values_dict = None, font_family = None):
 	"""
 	Create Sashimi plot.
 	"""
@@ -21,7 +21,7 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 	fig_width = 8
 	fig = plt.figure(figsize=(fig_width, fig_height))
 	# Subplots for coverage
-	gs = fig.add_gridspec(n_samples, 1, hspace=0.3)
+	gs = fig.add_gridspec(n_samples, 1, hspace=0.8)
 	# Set sample order
 	sample_order = []
 	if groups:
@@ -73,15 +73,19 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		# Plot junctions
 		region_junctions = junctions_dict[sample_name]
 		for junc_ID in region_junctions:
+			# Get direction of junction
+			direction = junction_direction_dict[junc_ID] if junction_direction_dict else "up"
+			# Get junction coordinates
 			junc_start = int(junc_ID.split(":")[1].split("-")[0]) - 1 # 0-based
 			junc_end = int(junc_ID.split(":")[1].split("-")[1])
+			# Get number of reads
 			junc_reads = region_junctions[junc_ID]
 			# Ignore if junction is out of range
 			if not (start < junc_start < end and start < junc_end < end):
 				continue
 			# Draw arc
-			x1, y1 = junc_start, cov[junc_start - start]
-			x2, y2 = junc_end, cov[junc_end - start]
+			(x1, y1) = (junc_start, cov[junc_start - start]) if direction == "up" else (junc_start, 0)
+			(x2, y2) = (junc_end, cov[junc_end - start]) if direction == "up" else (junc_end, 0)
 			# Calculate midpoint (to use as the center of the arc)
 			mx = (x1 + x2) / 2
 			my = (y1 + y2) / 2
@@ -91,6 +95,7 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 			dist = np.hypot(dx, dy)
 			# Angle (in degrees) of the line between the two points
 			angle_deg = np.degrees(np.arctan2(dy, dx))
+			logger.info(f"Junction {junc_ID}: {junc_reads} reads, direction: {direction}, angle = {angle_deg:.2f}°")
 			# Reduce the height of the arc
 			def set_arc_height_factor(dist): # to control arc curvature
 				if dist < 1000:
@@ -104,6 +109,11 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 				else:
 					return 0.00001
 			arc_height = dist * set_arc_height_factor(dist)  # Reduce height
+
+			# Set arc height according to the direction
+			sample_junc_reads_max = max([junc_reads for junc_ID, junc_reads in junctions_dict[sample_name].items()])
+			if direction == "down":
+				arc_height = -sample_junc_reads_max/2
 			# Set linewidth according to the number of reads
 			linewidth_factor = (2 - 1) / (junc_reads_max - junc_reads_min) if junc_reads_max != junc_reads_min else 1 # Scale linewidth from 1 to 2
 			arc_linewidth = 1 + (junc_reads - junc_reads_min) * linewidth_factor
@@ -111,19 +121,22 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 			arc = Arc(
 				(mx, my),
 				dist,
-				arc_height,
+				abs(arc_height),
 				angle=angle_deg,
-				theta1=0,
-				theta2=180,
+				theta1=0 if direction == "up" else 180,
+				theta2=180 if direction == "up" else 360,
 				linewidth=arc_linewidth,
-				edgecolor=color
+				edgecolor=color,
+				clip_on=False  # Allow drawing outside the axes
 			)
 			ax.add_patch(arc)
+			text_y_offset = arc_height / 2
 			# Add junc_reads as text on the arc
 			ax.text(
-				mx, my + arc_height / 2, str(junc_reads),
+				mx, my + text_y_offset, str(junc_reads),
 				fontsize=8, ha='center', va='center', color='black',
-				backgroundcolor='white', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round,pad=0')
+				backgroundcolor='white', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round,pad=0'),
+				clip_on=False  # Allow text to be drawn outside the axes
 			)
 		ax.set_xlim(start, end)
 		ax.set_ylim(bottom = 0, top = max(cov) * 1.4)
@@ -136,6 +149,11 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		ax.spines['top'].set_visible(False)
 		ax.spines['right'].set_visible(False)
 		ax.spines['bottom'].set_visible(False)
+		# Remove xticks for all samples
+		ax.set_xticks([])
+	# Add xticks to the bottom subplot
+	ax.set_xticks(np.arange(start, end, step=(end - start) // 10))
+	ax.set_xticklabels(np.arange(start, end, step=(end - start) // 10), rotation=45, ha='right', fontsize=8)
 	# Put title on the top subplot
 	title = f"{chrom}:{start}-{end}"
 	if strand:
