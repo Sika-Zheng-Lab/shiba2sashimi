@@ -8,7 +8,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.patches import Arc
 
-def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, chrom, start, end, strand, output, exon_s = 1, intron_s = 1, pos_id = None, psi_values_dict = None, font_family = None):
+def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, chrom, start, end, output, exon_s = 1, intron_s = 1, pos_id = None, strand = None, psi_values_dict = None, font_family = None):
 	"""
 	Create Sashimi plot.
 	"""
@@ -138,8 +138,14 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		ax.spines['bottom'].set_visible(False)
 	# Put title on the top subplot
 	if pos_id:
-		fig.suptitle(f"{chrom}:{start}-{end} ({strand})\n{pos_id}", fontsize=12, y=1.4 - 0.1 * n_samples)
+		if strand:
+			fig.suptitle(f"{chrom}:{start}-{end} ({strand})\n{pos_id}", fontsize=12, y=1.4 - 0.1 * n_samples)
+		else:
+			fig.suptitle(f"{chrom}:{start}-{end}\n{pos_id}", fontsize=12, y=1.4 - 0.1 * n_samples)
 	else:
-		fig.suptitle(f"{chrom}:{start}-{end} ({strand})", fontsize=12, y=1.4 - 0.1 * n_samples)
+		if strand:
+			fig.suptitle(f"{chrom}:{start}-{end} ({strand})", fontsize=12, y=1.4 - 0.1 * n_samples)
+		else:
+			fig.suptitle(f"{chrom}:{start}-{end}", fontsize=12, y=1.4 - 0.1 * n_samples)
 	# Save plot
 	plt.savefig(output, dpi=800, bbox_inches="tight")

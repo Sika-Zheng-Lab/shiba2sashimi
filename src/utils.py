@@ -64,6 +64,8 @@ def posid2int(positional_id, shiba_path, extend_up, extend_down) -> tuple:
 		sys.exit(1)
 	# Get chromosome, start, and end from positional ID
 	chrom = positional_id.split("@")[1].replace("chr", "")
+	# Get strand from PSI file
+	strand = psi_file_col_dict["strand"]
 	# Extend upstream and downstream
 	intron_key_map = {
 		"SE": "intron_c",
@@ -112,4 +114,4 @@ def posid2int(positional_id, shiba_path, extend_up, extend_down) -> tuple:
 	else:
 		for key in junction_keys:
 			junction_list += [psi_file_col_dict[key]]
-	return chrom, start, end, junction_list
+	return chrom, start, end, strand, junction_list
