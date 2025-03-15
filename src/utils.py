@@ -54,7 +54,10 @@ def posid2int(positional_id, shiba_path, extend_up, extend_down) -> tuple:
 				# Get all columns and store in dictionary
 				columns = line.split("\t")
 				for col, i in header_dict.items():
-					psi_file_col_dict[col] = columns[i]
+					try:
+						psi_file_col_dict[col] = columns[i]
+					except:
+						psi_file_col_dict[col] = None
 				break
 	# Check if positional ID exists in PSI file
 	if not psi_file_col_dict:

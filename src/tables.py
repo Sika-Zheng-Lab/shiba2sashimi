@@ -74,8 +74,6 @@ def get_psi_values(positional_id, shiba_path) -> dict:
 					psi_values_dict[sample] = float(psi)*100 if psi != "NA" else "NA"
 				break
 	if not psi_values_dict:
-		logger.error(f"Positional ID not found in PSI matrix file: {positional_id}")
-		logger.error("Please double check and provide a valid positional ID")
-		raise ValueError(f"Positional ID not found in PSI matrix file: {positional_id}")
-		sys.exit(1)
+		# PSI values are all NA
+		psi_values_dict = {sample: "NA" for sample in samples}
 	return psi_values_dict
