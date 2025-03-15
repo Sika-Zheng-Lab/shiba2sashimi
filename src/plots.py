@@ -62,8 +62,12 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		ax.fill_between(x_positions, cov, step="pre", color=color, alpha=0.8)
 		# Add sample name and PSI value
 		if psi_values_dict:
-			psi = psi_values_dict[sample_name]
-			ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi:.2f})",transform=ax.transAxes, fontsize=11, color="black")
+			try:
+				psi = psi_values_dict[sample_name]
+				ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi:.2f})",transform=ax.transAxes, fontsize=11, color="black")
+			except:
+				psi = "NA"
+				ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi})", transform=ax.transAxes, fontsize=11, color="black")
 		else:
 			ax.text(0.01, 0.85, f"{sample_name}", transform=ax.transAxes, fontsize=11, color="black")
 		# Plot junctions
