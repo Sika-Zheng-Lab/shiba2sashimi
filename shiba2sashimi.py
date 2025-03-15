@@ -1,0 +1,117 @@
+import argparse
+import os
+import sys
+import logging
+import time
+from src import tables, bams, plots
+# Configure logger
+logger = logging.getLogger(__name__)
+# Set version
+VERSION = "v0.1.0"
+
+def parse_args():
+	parser = argparse.ArgumentParser(
+		description=f"shiba2sashimi {VERSION} - Create Sashimi plot from Shiba output"
+	)
+
+	parser.add_argument("-e", "--experiment", required = True, help = "Experiment table used for Shiba")
+	parser.add_argument("-s", "--shiba", required = True, help = "Shiba output directory")
+	parser.add_argument("-o", "--output", required = True, help = "Output file")
+	parser.add_argument("--id", required = False, help = "Positional ID (pos_id) of the event to plot")
+	parser.add_argument("-c", "--coordinate", required = False, help = "Coordinates of the region to plot")
+	parser.add_argument("--strand", required = False, help = "Strand of the event to plot")
+	parser.add_argument("--samples", required = False, help = "Samples to plot. e.g. sample1,sample2,sample3 Default: all samples in the experiment table")
+	parser.add_argument("--groups", required = False, help = "Groups to plot. e.g. group1,group2,group3 Default: all groups in the experiment table")
+	parser.add_argument("--colors", required = False, help = "Colors for each group. e.g. red,orange,blue")
+	parser.add_argument("--exon_s", default = 1, type = int, help = "How much to scale down exons. Default: %(default)s")
+	parser.add_argument("--intron_s", default = 5, type = int, help = "How much to scale down introns. Default: %(default)s")
+	parser.add_argument("--font_family", help = "Font family for labels")
+	parser.add_argument("-v", "--verbose", action = "store_true", help = "Increase verbosity")
+	args = parser.parse_args()
+	return args
+
+def main():
+
+	# Get arguments
+	args = parse_args()
+
+	# Set up logging
+	logging.basicConfig(
+		format = "[%(asctime)s] %(levelname)7s %(message)s",
+		level = logging.DEBUG if args.verbose else logging.INFO
+	)
+
+	# Validate input and config
+	logger.info(f"Running shiba2sashimi ({VERSION})")
+	time.sleep(1)
+	logger.debug(f"Arguments: {args}")
+
+	# Load experiment table
+	logger.info(f"Loading experiment table from {args.experiment}")
+	experiment_dict = tables.load_experiment_table(args.experiment)
+	logger.debug(f"Experiment table: {experiment_dict}")
+
+	# Get PSI values from Shiba output
+	if args.id:
+		logger.debug(f"Get PSI values for positional ID: {args.id}")
+		psi_values_dict = tables.get_psi_values(args.id, args.shiba)
+
+	# Get coordinates of the target region from positional ID or coordinate
+	if args.coordinate:
+		logger.debug(f"Using provided coordinate: {args.coordinate}")
+		# Get coordinates from provided coordinate
+		chrom, start, end = bams.coord2int(args.coordinate)
+	elif args.id:
+		logger.debug(f"Extracting coordinates from positional ID: {args.id}")
+		# Get coordinates from positional ID
+		chrom, start, end, junction_list = bams.posid2int(args.id, args.shiba)
+		logger.debug(f"junction_list: {junction_list}")
+	else:
+		logger.error("Please provide either positional ID or coordinate to define the target region")
+		sys.exit(1)
+
+	# Get coverage of the target region for each sample
+	logger.info("Calculating coverage for each sample")
+	coverage_dict = {}
+	for sample, info in experiment_dict.items():
+		logger.info(f"Calculating coverage for {sample}")
+		coverage = bams.get_coverage(info["bam"], chrom, start, end)
+		coverage_dict[sample] = coverage
+
+	# Get information of target junctions
+	logger.info("Extracting junctions in the target region")
+	logger.debug(f"Target region: {chrom}:{start}-{end}")
+	junctions_dict = bams.extract_junctions_in_region(args.shiba, chrom, start, end, junction_list)
+	logger.debug(f"Junctions in the target region: {junctions_dict}")
+
+	# Create Sashimi plot
+	logger.info("Creating Sashimi plot")
+	plots.sashimi(
+		coverage_dict = coverage_dict,
+		junctions_dict = junctions_dict,
+		experiment_dict = experiment_dict,
+		samples = args.samples,
+		groups = args.groups,
+		colors = args.colors,
+		chrom = chrom,
+		start = start,
+		end = end,
+		strand = args.strand,
+		output = args.output,
+		exon_s = args.exon_s,
+		intron_s = args.intron_s,
+		pos_id = args.id if args.id else None,
+		psi_values_dict = psi_values_dict if args.id else None,
+		font_family = args.font_family if args.font_family else None
+	)
+
+	# Finish
+	logger.info("shiba2sashimi finished successfully")
+	logger.info(f"Output file: {args.output}")
+
+	# Return
+	return 0
+
+if __name__ == "__main__":
+	main()
+
