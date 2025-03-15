@@ -14,6 +14,7 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 	"""
 	if font_family:
 		matplotlib.rcParams["font.family"] = font_family
+	chrom = f"chr{chrom}" if not chrom.startswith("chr") and chrom.isdigit() else chrom
 	# Set figure size
 	n_samples = len(coverage_dict)
 	fig_height = 1 * n_samples
@@ -85,8 +86,18 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 			# Angle (in degrees) of the line between the two points
 			angle_deg = np.degrees(np.arctan2(dy, dx))
 			# Reduce the height of the arc
-			arc_height_factor = 0.1  # Change this to control arc curvature
-			arc_height = dist * arc_height_factor  # Reduce height
+			def set_arc_height_factor(dist): # to control arc curvature
+				if dist < 1000:
+					return 0.05
+				elif dist < 2500:
+					return 0.01
+				elif dist < 5000:
+					return 0.005
+				elif dist < 10000:
+					return 0.001
+				else:
+					return 0.00001
+			arc_height = dist * set_arc_height_factor(dist)  # Reduce height
 			# Set linewidth according to the number of reads
 			linewidth_factor = 0.001
 			arc_linewidth = junc_reads * linewidth_factor
@@ -110,7 +121,7 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 				backgroundcolor='white', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round,pad=0')
 			)
 		ax.set_xlim(start, end)
-		ax.set_ylim(bottom = 0, top = max(cov) * 1.1)
+		ax.set_ylim(bottom = 0, top = max(cov) * 1.4)
 		ax.set_ylabel("Coverage", fontsize=10)
 		if i < n_samples - 1:
 			ax.set_xticklabels([])
