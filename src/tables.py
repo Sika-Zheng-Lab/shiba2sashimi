@@ -71,7 +71,7 @@ def get_psi_values(positional_id, shiba_path) -> dict:
 			if pos_id_in_file == positional_id:
 				psi_values = line.split("\t")[2:]
 				for sample, psi in zip(samples, psi_values):
-					psi_values_dict[sample] = float(psi)*100
+					psi_values_dict[sample] = float(psi)*100 if psi != "NA" else "NA"
 				break
 	if not psi_values_dict:
 		logger.error(f"Positional ID not found in PSI matrix file: {positional_id}")
