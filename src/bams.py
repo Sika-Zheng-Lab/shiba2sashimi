@@ -28,7 +28,18 @@ def get_coverage(bam_path, chrom, start, end):
 	# Open BAM file with pysam.AlignmentFile
 	with pysam.AlignmentFile(bam_path, "rb") as bam:
 		# Get coverage using pileup
-		count = bam.count_coverage(chrom, start, end)
+		try:
+			count = bam.count_coverage(chrom, start, end)
+		except KeyError:
+			logger.debug(f"Chromosome {chrom} not found in BAM file")
+			# Remove "chr" prefix and try again
+			logger.debug(f"Trying without 'chr' prefix")
+			chrom = chrom.replace("chr", "")
+			count = bam.count_coverage(chrom, start, end)
+		except Exception as e:
+			logger.error(f"Failed to get coverage for {chrom}:{start}-{end}")
+			logger.error(f"Error: {e}")
+			sys.exit(1)
 		for i in range(arr_len):
 			total = 0
 			# Sum up coverage for each base
