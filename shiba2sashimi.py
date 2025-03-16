@@ -64,6 +64,7 @@ def main():
 		chrom, start, end = utils.coord2int(args.coordinate)
 		strand = None
 		junction_list = None
+		junction_direction_dict = None
 	elif args.id:
 		logger.debug(f"Extracting coordinates from positional ID: {args.id}")
 		# Get coordinates from positional ID
