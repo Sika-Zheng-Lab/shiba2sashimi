@@ -21,8 +21,6 @@ def parse_args():
 	parser.add_argument("--samples", required = False, help = "Samples to plot. e.g. sample1,sample2,sample3 Default: all samples in the experiment table")
 	parser.add_argument("--groups", required = False, help = "Groups to plot. e.g. group1,group2,group3 Default: all groups in the experiment table. Overrides --samples")
 	parser.add_argument("--colors", required = False, help = "Colors for each group. e.g. red,orange,blue")
-	parser.add_argument("--exon_s", default = 1, type = int, help = "How much to scale down exons. Default: %(default)s")
-	parser.add_argument("--intron_s", default = 5, type = int, help = "How much to scale down introns. Default: %(default)s")
 	parser.add_argument("--extend_up", default = 1000, type = int, help = "Extend the plot upstream. Only used when not providing coordinates. Default: %(default)s")
 	parser.add_argument("--extend_down", default = 1000, type = int, help = "Extend the plot downstream. Only used when not providing coordinates. Default: %(default)s")
 	parser.add_argument("--font_family", help = "Font family for labels")
@@ -129,8 +127,6 @@ def main():
 		start = start,
 		end = end,
 		output = args.output,
-		exon_s = args.exon_s,
-		intron_s = args.intron_s,
 		pos_id = args.id if args.id else None,
 		strand = strand,
 		gene_name = gene_name,
