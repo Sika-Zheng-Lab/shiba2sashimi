@@ -58,18 +58,23 @@ def main():
 		psi_values_dict = tables.get_psi_values(args.id, args.shiba)
 
 	# Get coordinates of the target region from positional ID or coordinate
-	if args.coordinate:
+	if args.id:
+		logger.debug(f"Extracting coordinates from positional ID: {args.id}")
+		# Get coordinates from positional ID
+		chrom, start, end, strand, gene_name, junction_list, junction_direction_dict = utils.posid2int(args.id, args.shiba, args.extend_up, args.extend_down)
+		logger.debug(f"junction_list: {junction_list}")
+		if args.coordinate:
+			logger.debug(f"Using provided coordinate: {args.coordinate}")
+			# Get coordinates from provided coordinate
+			chrom, start, end = utils.coord2int(args.coordinate)
+	elif args.coordinate:
 		logger.debug(f"Using provided coordinate: {args.coordinate}")
 		# Get coordinates from provided coordinate
 		chrom, start, end = utils.coord2int(args.coordinate)
 		strand = None
+		gene_name = None
 		junction_list = None
 		junction_direction_dict = None
-	elif args.id:
-		logger.debug(f"Extracting coordinates from positional ID: {args.id}")
-		# Get coordinates from positional ID
-		chrom, start, end, strand, junction_list, junction_direction_dict = utils.posid2int(args.id, args.shiba, args.extend_up, args.extend_down)
-		logger.debug(f"junction_list: {junction_list}")
 	else:
 		logger.error("Please provide either positional ID or coordinate to define the target region")
 		sys.exit(1)
@@ -113,6 +118,7 @@ def main():
 		intron_s = args.intron_s,
 		pos_id = args.id if args.id else None,
 		strand = strand,
+		gene_name = gene_name,
 		junction_direction_dict = junction_direction_dict if args.id else None,
 		psi_values_dict = psi_values_dict if args.id else None,
 		font_family = args.font_family if args.font_family else None,

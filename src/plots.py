@@ -8,7 +8,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.patches import Arc
 
-def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, chrom, start, end, output, exon_s = 1, intron_s = 1, pos_id = None, strand = None, junction_direction_dict = None, psi_values_dict = None, font_family = None, dpi = 300):
+def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, chrom, start, end, output, exon_s = 1, intron_s = 1, pos_id = None, strand = None, gene_name = None, junction_direction_dict = None, psi_values_dict = None, font_family = None, dpi = 300):
 	"""
 	Create Sashimi plot.
 	"""
@@ -154,10 +154,8 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 	ax.set_xticklabels(np.arange(start, end, step=(end - start) // 10), rotation=45, ha='right', fontsize=8)
 	# Put title on the top subplot
 	title = f"{chrom}:{start}-{end}"
-	if strand != None:
-		title += f" ({strand})"
-		if pos_id:
-			title += f"\n{pos_id}"
-	fig.suptitle(title, fontsize=12, y=1.4 - 0.1 * n_samples)
+	if strand is not None and pos_id:
+		title += f"\n{pos_id}, {gene_name} ({strand})"
+	fig.suptitle(title, fontsize=12, y=1.45 - 0.1 * n_samples)
 	# Save plot
 	plt.savefig(output, dpi=dpi, bbox_inches="tight")

@@ -71,7 +71,10 @@ def get_psi_values(positional_id, shiba_path) -> dict:
 			if pos_id_in_file == positional_id:
 				psi_values = line.split("\t")[2:]
 				for sample, psi in zip(samples, psi_values):
-					psi_values_dict[sample] = float(psi)*100 if psi != "NA" else "NA"
+					if psi.replace('.', '', 1).isdigit():
+						psi_values_dict[sample] = float(psi) * 100
+					else:
+						psi_values_dict[sample] = "NA"
 				break
 	if not psi_values_dict:
 		# PSI values are all NA
