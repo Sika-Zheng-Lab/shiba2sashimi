@@ -52,6 +52,21 @@ def main():
 	experiment_dict = tables.load_experiment_table(args.experiment)
 	logger.debug(f"Experiment table: {experiment_dict}")
 
+	# Check if provided samples exist in the experiment table
+	if args.samples:
+		for sample in args.samples.split(","):
+			if sample not in experiment_dict:
+				logger.error(f"Sample not found in the experiment table: {sample}")
+				logger.error("Please double check and provide a valid sample")
+				sys.exit(1)
+	# Check if provided groups exist in the experiment table
+	if args.groups:
+		for group in args.groups.split(","):
+			if group not in set([info["group"] for info in experiment_dict.values()]):
+				logger.error(f"Group not found in the experiment table: {group}")
+				logger.error("Please double check and provide a valid group")
+				sys.exit(1)
+
 	# Get PSI values from Shiba output
 	if args.id:
 		logger.debug(f"Get PSI values for positional ID: {args.id}")
