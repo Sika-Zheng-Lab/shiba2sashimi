@@ -1,5 +1,4 @@
 import argparse
-import os
 import sys
 import logging
 import time
@@ -63,6 +62,8 @@ def main():
 		logger.debug(f"Using provided coordinate: {args.coordinate}")
 		# Get coordinates from provided coordinate
 		chrom, start, end = utils.coord2int(args.coordinate)
+		strand = None
+		junction_list = None
 	elif args.id:
 		logger.debug(f"Extracting coordinates from positional ID: {args.id}")
 		# Get coordinates from positional ID
@@ -110,7 +111,7 @@ def main():
 		exon_s = args.exon_s,
 		intron_s = args.intron_s,
 		pos_id = args.id if args.id else None,
-		strand = strand if strand else None,
+		strand = strand,
 		junction_direction_dict = junction_direction_dict if args.id else None,
 		psi_values_dict = psi_values_dict if args.id else None,
 		font_family = args.font_family if args.font_family else None,
