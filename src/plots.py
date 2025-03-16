@@ -8,7 +8,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.patches import Arc
 
-def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, chrom, start, end, output, exon_s = 1, intron_s = 1, pos_id = None, strand = None, junction_direction_dict = None, psi_values_dict = None, font_family = None):
+def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, chrom, start, end, output, exon_s = 1, intron_s = 1, pos_id = None, strand = None, junction_direction_dict = None, psi_values_dict = None, font_family = None, dpi = 300):
 	"""
 	Create Sashimi plot.
 	"""
@@ -160,4 +160,4 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		title += f"\n{pos_id}"
 	fig.suptitle(title, fontsize=12, y=1.4 - 0.1 * n_samples)
 	# Save plot
-	plt.savefig(output, dpi=800, bbox_inches="tight")
+	plt.savefig(output, dpi=dpi, bbox_inches="tight")

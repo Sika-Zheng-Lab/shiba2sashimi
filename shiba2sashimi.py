@@ -19,7 +19,6 @@ def parse_args():
 	parser.add_argument("-o", "--output", required = True, help = "Output file")
 	parser.add_argument("--id", required = False, help = "Positional ID (pos_id) of the event to plot")
 	parser.add_argument("-c", "--coordinate", required = False, help = "Coordinates of the region to plot")
-	parser.add_argument("--strand", required = False, help = "Strand of the event to plot")
 	parser.add_argument("--samples", required = False, help = "Samples to plot. e.g. sample1,sample2,sample3 Default: all samples in the experiment table")
 	parser.add_argument("--groups", required = False, help = "Groups to plot. e.g. group1,group2,group3 Default: all groups in the experiment table. Overrides --samples")
 	parser.add_argument("--colors", required = False, help = "Colors for each group. e.g. red,orange,blue")
@@ -28,6 +27,7 @@ def parse_args():
 	parser.add_argument("--extend_up", default = 1000, type = int, help = "Extend the plot upstream. Only used when not providing coordinates. Default: %(default)s")
 	parser.add_argument("--extend_down", default = 1000, type = int, help = "Extend the plot downstream. Only used when not providing coordinates. Default: %(default)s")
 	parser.add_argument("--font_family", help = "Font family for labels")
+	parser.add_argument("--dpi", default = 300, type = int, help = "DPI of the output figure. Default: %(default)s")
 	parser.add_argument("-v", "--verbose", action = "store_true", help = "Increase verbosity")
 	args = parser.parse_args()
 	return args
@@ -113,7 +113,8 @@ def main():
 		strand = strand if strand else None,
 		junction_direction_dict = junction_direction_dict if args.id else None,
 		psi_values_dict = psi_values_dict if args.id else None,
-		font_family = args.font_family if args.font_family else None
+		font_family = args.font_family if args.font_family else None,
+		dpi = args.dpi
 	)
 
 	# Finish
