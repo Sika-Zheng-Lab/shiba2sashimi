@@ -18,7 +18,7 @@ def median_filter(data, window_size):
 		filtered_data[i] = np.median(data[start:end])
 	return filtered_data
 
-def get_coverage(bam_path, chrom, start, end):
+def get_coverage(bam_path, chrom, start, end, window_size=21):
 	"""
 	Return coverage array of the specified region (chrom, start, end) using pysam.
 	"""
@@ -58,6 +58,5 @@ def get_coverage(bam_path, chrom, start, end):
 				total += count[j][i]
 			coverage[i] = total
 	# Apply median filter for smooth coverage plot
-	window_size = 21
 	coverage = median_filter(coverage, window_size)
 	return coverage

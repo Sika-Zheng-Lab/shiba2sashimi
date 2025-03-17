@@ -21,8 +21,9 @@ def parse_args():
 	parser.add_argument("--samples", required = False, help = "Samples to plot. e.g. sample1,sample2,sample3 Default: all samples in the experiment table")
 	parser.add_argument("--groups", required = False, help = "Groups to plot. e.g. group1,group2,group3 Default: all groups in the experiment table. Overrides --samples")
 	parser.add_argument("--colors", required = False, help = "Colors for each group. e.g. red,orange,blue")
-	parser.add_argument("--extend_up", default = 1000, type = int, help = "Extend the plot upstream. Only used when not providing coordinates. Default: %(default)s")
-	parser.add_argument("--extend_down", default = 1000, type = int, help = "Extend the plot downstream. Only used when not providing coordinates. Default: %(default)s")
+	parser.add_argument("--extend_up", default = 500, type = int, help = "Extend the plot upstream. Only used when not providing coordinates. Default: %(default)s")
+	parser.add_argument("--extend_down", default = 500, type = int, help = "Extend the plot downstream. Only used when not providing coordinates. Default: %(default)s")
+	parser.add_argument("--smoothing_window_size", default = 21, type = int, help = "Window size for median filter to smooth coverage plot. Greater value gives smoother plot. Default: %(default)s")
 	parser.add_argument("--font_family", help = "Font family for labels")
 	parser.add_argument("--dpi", default = 300, type = int, help = "DPI of the output figure. Default: %(default)s")
 	parser.add_argument("-v", "--verbose", action = "store_true", help = "Increase verbosity")
@@ -105,7 +106,8 @@ def main():
 			if sample not in args.samples.split(","):
 				continue
 		logger.info(f"Calculating coverage for {sample}")
-		coverage = bams.get_coverage(info["bam"], chrom, start, end)
+		window_size = args.smoothing_window_size if args.smoothing_window_size % 2 == 1 else args.smoothing_window_size + 1
+		coverage = bams.get_coverage(info["bam"], chrom, start, end, window_size)
 		coverage_dict[sample] = coverage
 
 	# Get information of target junctions
