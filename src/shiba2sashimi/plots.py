@@ -138,7 +138,7 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 			)
 		ax.set_xlim(start, end)
 		ax.set_ylim(bottom = 0, top = max(cov) * 1.4)
-		ax.set_ylabel("Coverage", fontsize=10)
+		ax.set_ylabel("Coverage", fontsize=8)
 		if i < n_samples - 1:
 			ax.set_xticklabels([])
 		else:
@@ -151,7 +151,7 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		ax.set_xticks([])
 	# Add xticks to the bottom subplot
 	ax.set_xticks(np.arange(start, end, step=(end - start) // 10))
-	ax.set_xticklabels(np.arange(start, end, step=(end - start) // 10), rotation=45, ha='right', fontsize=8)
+	ax.set_xticklabels(np.arange(start, end, step=(end - start) // 10), rotation=45, ha='right', fontsize=6)
 	# Put title on the top subplot
 	title = f"{chrom}:{start}-{end}"
 	if strand is not None and pos_id:
