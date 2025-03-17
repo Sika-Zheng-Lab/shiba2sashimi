@@ -1,4 +1,4 @@
-# 🐕 shiba2sashimi 🍣
+# 🐕 shiba2sashimi 🍣 (v0.1.0)
 
 A utility to create Sashimi plots, a publication-quality visualization of RNA-seq data, from [Shiba](https://github.com/Sika-Zheng-Lab/Shiba) output. Greatly inspired by [rmats2sashimiplot](https://github.com/Xinglab/rmats2sashimiplot) and [MISO](https://miso.readthedocs.io/en/fastmiso/sashimi.html)'s original implementation.
 
