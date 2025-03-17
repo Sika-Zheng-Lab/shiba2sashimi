@@ -37,7 +37,7 @@ cd shiba2sashimi
 pip install .
 ```
 
-You can run the script without pip installing by running the script directly.
+You can also run shiba2sashimi without pip installing by running the script directly if you have installed all dependencies.
 
 ```bash
 git clone https://github.com/NaotoKubota/shiba2sashimi.git
