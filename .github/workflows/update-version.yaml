@@ -52,6 +52,8 @@ jobs:
         run: |
           NEW_VERSION=${{ steps.read_version.outputs.NEW_VERSION }}
           sed -i "s/v[0-9]*\.[0-9]*\.[0-9]*/${NEW_VERSION}/" docker/Dockerfile
+          NEW_VERSION_wo_v=$(echo $NEW_VERSION | sed 's/v//')
+          sed -i "s/shiba2sashimi==[0-9]*\.[0-9]*\.[0-9]*/shiba2sashimi==${NEW_VERSION_wo_v}/" docker/Dockerfile
 
       - name: Commit changes
         run: |
