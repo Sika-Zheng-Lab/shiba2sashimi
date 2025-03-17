@@ -5,7 +5,18 @@ import logging
 logger = logging.getLogger(__name__)
 import pysam
 import numpy as np
-from scipy.ndimage import median_filter
+
+def median_filter(data, window_size):
+	"""
+	Apply a median filter to the data with the specified window size.
+	"""
+	filtered_data = np.zeros_like(data)
+	half_window = window_size // 2
+	for i in range(len(data)):
+		start = max(0, i - half_window)
+		end = min(len(data), i + half_window + 1)
+		filtered_data[i] = np.median(data[start:end])
+	return filtered_data
 
 def get_coverage(bam_path, chrom, start, end):
 	"""
@@ -48,5 +59,5 @@ def get_coverage(bam_path, chrom, start, end):
 			coverage[i] = total
 	# Apply median filter for smooth coverage plot
 	window_size = 21
-	coverage = median_filter(coverage, size=window_size)
+	coverage = median_filter(coverage, window_size)
 	return coverage
