@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shiba2sashimi"
+version = "0.1.0"
+description = "A utility for creating sashimi plot from Shiba output"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {text = "MIT"}
+authors = [
+    {name = "Naoto Kubota", email = "the.owner.of.the.dream123@gmail.com"}
+]
+dependencies = [
+	"numpy>=1.18.0,<2.0.0",
+	"matplotlib>=3.1.0",
+	"pysam>=0.22.0"
+]
+urls = { "Homepage" = "https://github.com/NaotoKubota/shiba2sashimi" }
+
+[project.scripts]
+shiba2sashimi = "shiba2sashimi.main:main"
