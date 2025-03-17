@@ -43,8 +43,8 @@ python -m shiba2sashimi.main
 ## Usage
 
 ```bash
-usage: shiba2sashimi [-h] -e EXPERIMENT -s SHIBA -o OUTPUT [--id ID] [-c COORDINATE] [--samples SAMPLES] [--groups GROUPS] [--colors COLORS] [--extend_up EXTEND_UP]
-                     [--extend_down EXTEND_DOWN] [--font_family FONT_FAMILY] [--dpi DPI] [-v]
+usage: shiba2sashimi [-h] -e EXPERIMENT -s SHIBA -o OUTPUT [--id ID] [-c COORDINATE] [--samples SAMPLES] [--groups GROUPS] [--colors COLORS] [--extend_up EXTEND_UP] [--extend_down EXTEND_DOWN]
+                     [--smoothing_window_size SMOOTHING_WINDOW_SIZE] [--font_family FONT_FAMILY] [--dpi DPI] [-v]
 
 shiba2sashimi v0.1.0 - Create Sashimi plot from Shiba output
 
@@ -63,9 +63,11 @@ optional arguments:
   --groups GROUPS       Groups to plot. e.g. group1,group2,group3 Default: all groups in the experiment table. Overrides --samples
   --colors COLORS       Colors for each group. e.g. red,orange,blue
   --extend_up EXTEND_UP
-                        Extend the plot upstream. Only used when not providing coordinates. Default: 1000
+                        Extend the plot upstream. Only used when not providing coordinates. Default: 500
   --extend_down EXTEND_DOWN
-                        Extend the plot downstream. Only used when not providing coordinates. Default: 1000
+                        Extend the plot downstream. Only used when not providing coordinates. Default: 500
+  --smoothing_window_size SMOOTHING_WINDOW_SIZE
+                        Window size for median filter to smooth coverage plot. Greater value gives smoother plot. Default: 21
   --font_family FONT_FAMILY
                         Font family for labels
   --dpi DPI             DPI of the output figure. Default: 300
