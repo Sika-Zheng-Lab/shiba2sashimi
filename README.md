@@ -1,14 +1,54 @@
-# shiba2sashimi
+# 🐕 shiba2sashimi 🍣
+
+A utility to create Sashimi plots, a publication-quality visualization of RNA-seq data, from [Shiba](https://github.com/Sika-Zheng-Lab/Shiba) output. Greatly inspired by [rmats2sashimiplot](https://github.com/Xinglab/rmats2sashimiplot) and [MISO](https://miso.readthedocs.io/en/fastmiso/sashimi.html)'s original implementation.
+
+## Quick start
+
+```bash
+shiba2sashimi -e /path/to/Shiba/experiment_table.tsv \
+-s /path/to/Shiba/output/ -o img/sashimi_example.png \
+--id "SE@chr11@5091460-5091477@5088146-5091859"
+```
+
+<img src="img/sashimi_example.png" width=100%>
+
+## How to install
+
+```bash
+pip install shiba2sashimi
+```
+
+or
+
+```bash
+git clone https://github.com/NaotoKubota/shiba2sashimi.git
+cd shiba2sashimi
+pip install .
+```
+
+You can run the script without pip installing by running the script directly.
+
+```bash
+git clone https://github.com/NaotoKubota/shiba2sashimi.git
+cd shiba2sashimi
+python -m shiba2sashimi.main
+```
+
+## Dependencies
+
+- numpy (>=1.18.0,<2.0.0)
+- matplotlib (>=3.1.0)
+- pysam (>=0.22.0)
 
 ## Usage
 
 ```bash
-usage: shiba2sashimi.py [-h] -e EXPERIMENT -s SHIBA -o OUTPUT [--id ID] [-c COORDINATE] [--samples SAMPLES] [--groups GROUPS] [--colors COLORS] [--extend_up EXTEND_UP] [--extend_down EXTEND_DOWN] [--font_family FONT_FAMILY]
-                        [--dpi DPI] [-v]
+usage: shiba2sashimi [-h] -e EXPERIMENT -s SHIBA -o OUTPUT [--id ID] [-c COORDINATE] [--samples SAMPLES] [--groups GROUPS] [--colors COLORS] [--extend_up EXTEND_UP]
+                     [--extend_down EXTEND_DOWN] [--font_family FONT_FAMILY] [--dpi DPI] [-v]
 
 shiba2sashimi v0.1.0 - Create Sashimi plot from Shiba output
 
-options:
+optional arguments:
   -h, --help            show this help message and exit
   -e EXPERIMENT, --experiment EXPERIMENT
                         Experiment table used for Shiba
@@ -31,3 +71,7 @@ options:
   --dpi DPI             DPI of the output figure. Default: 300
   -v, --verbose         Increase verbosity
 ```
+
+## Authors
+
+- Naoto Kubota ([0000-0003-0612-2300](https://orcid.org/0000-0003-0612-2300))
