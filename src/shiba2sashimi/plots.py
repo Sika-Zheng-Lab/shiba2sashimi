@@ -56,6 +56,7 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 	for i, sample_name in enumerate(sample_order):
 		ax = fig.add_subplot(gs[i, 0])
 		cov = coverage_dict[sample_name]
+		cov_max = max(cov)
 		x_positions = range(start, end)
 		group = experiment_dict[sample_name]["group"]
 		color = color_dict[group]
@@ -109,9 +110,8 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 					return 0.00001
 			arc_height = dist * set_arc_height_factor(dist)  # Reduce height
 			# Set arc height according to the direction
-			sample_junc_reads_max = max([junc_reads for junc_ID, junc_reads in junctions_dict[sample_name].items()])
 			if direction == "down":
-				arc_height = -sample_junc_reads_max/2
+				arc_height = -cov_max/2
 			# Set linewidth according to the number of reads
 			linewidth_factor = (2 - 1) / (junc_reads_max - junc_reads_min) if junc_reads_max != junc_reads_min else 1 # Scale linewidth from 1 to 2
 			arc_linewidth = 1 + (junc_reads - junc_reads_min) * linewidth_factor
