@@ -2,7 +2,7 @@ import argparse
 import sys
 import logging
 import time
-from src import tables, bams, plots, junc, utils
+from . import tables, bams, plots, junc, utils
 # Configure logger
 logger = logging.getLogger(__name__)
 # Set version
