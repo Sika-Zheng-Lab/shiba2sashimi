@@ -1,3 +1,7 @@
+[![GitHub License](https://img.shields.io/github/license/Sika-Zheng-Lab/shiba2sashimi)](https://github.com/Sika-Zheng-Lab/shiba2sashimi/blob/main/LICENSE)
+[![GitHub Release](https://img.shields.io/github/v/release/Sika-Zheng-Lab/shiba2sashimi?style=flat)](https://github.com/Sika-Zheng-Lab/shiba2sashimi/releases)
+[![GitHub Release Date](https://img.shields.io/github/release-date/Sika-Zheng-Lab/shiba2sashimi)](https://github.com/Sika-Zheng-Lab/shiba2sashimi/releases)
+
 # 🐕 shiba2sashimi 🍣 (v0.1.0)
 
 A utility to create Sashimi plots, a publication-quality visualization of RNA-seq data, from [Shiba](https://github.com/Sika-Zheng-Lab/Shiba) output. Greatly inspired by [rmats2sashimiplot](https://github.com/Xinglab/rmats2sashimiplot) and [MISO](https://miso.readthedocs.io/en/fastmiso/sashimi.html)'s original implementation.
