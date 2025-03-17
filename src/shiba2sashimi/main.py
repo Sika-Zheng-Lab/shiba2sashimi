@@ -128,6 +128,7 @@ def main():
 		end = end,
 		output = args.output,
 		pos_id = args.id if args.id else None,
+		coordinate = args.coordinate if args.coordinate else None,
 		strand = strand,
 		gene_name = gene_name,
 		junction_direction_dict = junction_direction_dict if args.id else None,
