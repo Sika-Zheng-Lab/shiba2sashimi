@@ -32,7 +32,7 @@ pip install shiba2sashimi
 or
 
 ```bash
-git clone https://github.com/NaotoKubota/shiba2sashimi.git
+git clone https://github.com/Sika-Zheng-Lab/shiba2sashimi.git
 cd shiba2sashimi
 pip install .
 ```
@@ -40,7 +40,7 @@ pip install .
 You can also run shiba2sashimi without pip installing by running the script directly if you have installed all dependencies.
 
 ```bash
-git clone https://github.com/NaotoKubota/shiba2sashimi.git
+git clone https://github.com/Sika-Zheng-Lab/shiba2sashimi.git
 cd shiba2sashimi
 python -m shiba2sashimi.main
 ```
