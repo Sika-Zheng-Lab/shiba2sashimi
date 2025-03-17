@@ -2,6 +2,6 @@
 
 All notable changes to this shiba2sashimi project will be documented in this file.
 
-## [v0.1.0] - 2025-??-??
+## [v0.1.0] - 2025-03-17
 
 Initial release of 🐕 shiba2sashimi 🍣
