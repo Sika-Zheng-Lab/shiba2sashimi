@@ -6,9 +6,9 @@ setup(
     packages=find_packages(where='src'),
     package_dir={'': 'src'},
     install_requires=[
-    	"numpy>=1.18.0,<2.0.0",
-		"matplotlib>=3.1.0",
-		"pysam>=0.22.0"
+        "numpy>=1.18.0,<2.0.0",
+        "matplotlib>=3.1.0",
+        "pysam>=0.22.0"
     ],
     entry_points={
         'console_scripts': [
