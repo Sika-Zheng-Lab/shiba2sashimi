@@ -115,6 +115,8 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 			# Set linewidth according to the number of reads
 			linewidth_factor = (2 - 1) / (junc_reads_max - junc_reads_min) if junc_reads_max != junc_reads_min else 1 # Scale linewidth from 1 to 2
 			arc_linewidth = 1 + (junc_reads - junc_reads_min) * linewidth_factor
+			if junc_reads == 0:
+				arc_linewidth = 0.5
 			# Create an Arc patch
 			arc = Arc(
 				(mx, my),
