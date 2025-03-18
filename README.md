@@ -5,6 +5,7 @@
 [![GitHub Release](https://img.shields.io/github/v/release/Sika-Zheng-Lab/shiba2sashimi?style=flat)](https://github.com/Sika-Zheng-Lab/shiba2sashimi/releases)
 [![GitHub Release Date](https://img.shields.io/github/release-date/Sika-Zheng-Lab/shiba2sashimi)](https://github.com/Sika-Zheng-Lab/shiba2sashimi/releases)
 [![Create Release](https://github.com/Sika-Zheng-Lab/shiba2sashimi/actions/workflows/release.yaml/badge.svg)](https://github.com/Sika-Zheng-Lab/shiba2sashimi/actions/workflows/release.yaml)
+[![Publish PyPI](https://github.com/Sika-Zheng-Lab/shiba2sashimi/actions/workflows/publish.yaml/badge.svg)](https://github.com/Sika-Zheng-Lab/shiba2sashimi/actions/workflows/publish.yaml)
 [![PyPI](https://img.shields.io/pypi/v/shiba2sashimi)](https://pypi.org/project/shiba2sashimi/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/shiba2sashimi)](https://pypi.org/project/shiba2sashimi/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/shiba2sashimi)](https://pypi.org/project/shiba2sashimi/)
