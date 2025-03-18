@@ -13,13 +13,15 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install dependencies first
 RUN apt-get -qq update && \
 	apt-get -qq -y install \
-    build-essential gcc g++ make cmake libtool texinfo dpkg-dev pkg-config \
-    libgsl-dev wget locate less vim zlib1g-dev bzip2 lzma curl \
-    libboost-dev libcurl4-openssl-dev libboost-all-dev libbz2-dev liblzma-dev \
-    libpcre3 libpcre3-dev
+    wget less vim curl
+
+# Upgrade pip
+RUN pip install --upgrade pip
 
 # Install shiba2sashimi
-RUN pip install shiba2sashimi==0.1.0
+RUN git clone https://github.com/Sika-Zheng-Lab/shiba2sashimi.git -b v0.1.0 && \
+    cd shiba2sashimi && \
+    pip install .
 
 # Set working directory
 WORKDIR /home
