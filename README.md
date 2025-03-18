@@ -8,7 +8,7 @@
 [![Publish PyPI](https://github.com/Sika-Zheng-Lab/shiba2sashimi/actions/workflows/publish.yaml/badge.svg)](https://github.com/Sika-Zheng-Lab/shiba2sashimi/actions/workflows/publish.yaml)
 [![PyPI](https://img.shields.io/pypi/v/shiba2sashimi)](https://pypi.org/project/shiba2sashimi/)
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/shiba2sashimi)](https://pypi.org/project/shiba2sashimi/)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/shiba2sashimi)](https://pypi.org/project/shiba2sashimi/)
+[![Conda](https://img.shields.io/conda/v/bioconda/shiba2sashimi?color=3EB049)](https://anaconda.org/bioconda/shiba2sashimi)
 [![Docker Pulls](https://img.shields.io/docker/pulls/naotokubota/shiba2sashimi)](https://hub.docker.com/r/naotokubota/shiba2sashimi)
 [![Docker Image Size](https://img.shields.io/docker/image-size/naotokubota/shiba2sashimi)](https://hub.docker.com/r/naotokubota/shiba2sashimi)
 
@@ -26,6 +26,8 @@ shiba2sashimi -e /path/to/Shiba/experiment_table.tsv \
 
 ## How to install
 
+### pip
+
 ```bash
 pip install shiba2sashimi
 ```
@@ -38,7 +40,23 @@ cd shiba2sashimi
 pip install .
 ```
 
-You can also run shiba2sashimi without pip installing by running the script directly if you have installed all dependencies.
+### conda
+
+```bash
+conda create -n shiba2sashimi python=3.9
+conda activate shiba2sashimi
+conda install -c bioconda shiba2sashimi
+```
+
+### Docker
+
+```bash
+docker pull naotokubota/shiba2sashimi
+```
+
+### GitHub Release
+
+If you have installed all dependencies, you can also run shiba2sashimi by running the main script directly.
 
 ```bash
 git clone https://github.com/Sika-Zheng-Lab/shiba2sashimi.git
