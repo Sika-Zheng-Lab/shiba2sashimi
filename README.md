@@ -56,6 +56,7 @@ docker pull naotokubota/shiba2sashimi
 
 ## Dependencies
 
+- python (>=3.9)
 - numpy (>=1.18.0,<2.0.0)
 - matplotlib (>=3.1.0)
 - pysam (>=0.22.0)
