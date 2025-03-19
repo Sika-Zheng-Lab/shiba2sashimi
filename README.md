@@ -22,7 +22,7 @@ shiba2sashimi -e /path/to/Shiba/experiment_table.tsv \
 --id "SE@chr11@5091460-5091477@5088146-5091859"
 ```
 
-![Sashimi plot example](img/sashimi_example.png)
+![Sashimi plot example](https://raw.githubusercontent.com/Sika-Zheng-Lab/shiba2sashimi/main/img/sashimi_example.png)
 
 ## How to install
 
