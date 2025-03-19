@@ -54,16 +54,6 @@ conda install -c bioconda shiba2sashimi
 docker pull naotokubota/shiba2sashimi
 ```
 
-### GitHub Release
-
-If you have installed all dependencies, you can also run shiba2sashimi by running the main script directly.
-
-```bash
-git clone https://github.com/Sika-Zheng-Lab/shiba2sashimi.git
-cd shiba2sashimi
-python -m shiba2sashimi.main
-```
-
 ## Dependencies
 
 - numpy (>=1.18.0,<2.0.0)
