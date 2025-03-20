@@ -1,5 +1,5 @@
 ##################################################################
-# Dockerfile to build container images for shiba2sashimi (v0.1.0)
+# Dockerfile to build container images for shiba2sashimi (v0.1.1)
 # Based on python 3.9-bullseye
 ##################################################################
 
@@ -19,7 +19,7 @@ RUN apt-get -qq update && \
 RUN pip install --upgrade pip
 
 # Install shiba2sashimi
-RUN git clone https://github.com/Sika-Zheng-Lab/shiba2sashimi.git -b v0.1.0 && \
+RUN git clone https://github.com/Sika-Zheng-Lab/shiba2sashimi.git -b v0.1.1 && \
     cd shiba2sashimi && \
     pip install .
 

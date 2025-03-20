@@ -1,4 +1,4 @@
-# 🐕 shiba2sashimi 🍣 (v0.1.0)
+# 🐕 shiba2sashimi 🍣 (v0.1.1)
 
 [![GitHub License](https://img.shields.io/github/license/Sika-Zheng-Lab/shiba2sashimi)](https://github.com/Sika-Zheng-Lab/shiba2sashimi/blob/main/LICENSE)
 [![DOI](https://zenodo.org/badge/947608002.svg)](https://doi.org/10.5281/zenodo.15042265)
@@ -67,7 +67,7 @@ docker pull naotokubota/shiba2sashimi
 usage: shiba2sashimi [-h] -e EXPERIMENT -s SHIBA -o OUTPUT [--id ID] [-c COORDINATE] [--samples SAMPLES] [--groups GROUPS] [--colors COLORS] [--extend_up EXTEND_UP] [--extend_down EXTEND_DOWN]
                      [--smoothing_window_size SMOOTHING_WINDOW_SIZE] [--font_family FONT_FAMILY] [--dpi DPI] [-v]
 
-shiba2sashimi v0.1.0 - Create Sashimi plot from Shiba output
+shiba2sashimi v0.1.1 - Create Sashimi plot from Shiba output
 
 optional arguments:
   -h, --help            show this help message and exit
