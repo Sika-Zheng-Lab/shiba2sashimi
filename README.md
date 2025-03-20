@@ -19,7 +19,7 @@ A utility to create Sashimi plots, a publication-quality visualization of RNA-se
 ```bash
 shiba2sashimi -e /path/to/Shiba/experiment_table.tsv \
 -s /path/to/Shiba/output/ -o img/sashimi_example.png \
---id "SE@chr11@5091460-5091477@5088146-5091859"
+--id "SE@chr2@157561213-157561293@157560260-157561542"
 ```
 
 ![Sashimi plot example](https://raw.githubusercontent.com/Sika-Zheng-Lab/shiba2sashimi/main/img/sashimi_example.png)
