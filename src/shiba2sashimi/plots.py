@@ -99,22 +99,8 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 			dist = np.hypot(dx, dy)
 			# Angle (in degrees) of the line between the two points
 			angle_deg = np.degrees(np.arctan2(dy, dx))
-			# Reduce the height of the arc
-			def set_arc_height_factor(dist): # to control arc curvature
-				if dist < 1000:
-					return 0.05
-				elif dist < 2500:
-					return 0.01
-				elif dist < 5000:
-					return 0.005
-				elif dist < 10000:
-					return 0.001
-				else:
-					return 0.00001
-			arc_height = dist * set_arc_height_factor(dist)  # Reduce height
-			# Set arc height according to the direction
-			if direction == "down":
-				arc_height = -cov_max/2
+			# Set arc height according to the coverage
+			arc_height = cov_max/3 if direction == "up" else -cov_max/2
 			# Set linewidth according to the number of reads
 			linewidth_factor = (2 - 1) / (junc_reads_max - junc_reads_min) if junc_reads_max != junc_reads_min else 1 # Scale linewidth from 1 to 2
 			arc_linewidth = 1 + (junc_reads - junc_reads_min) * linewidth_factor
