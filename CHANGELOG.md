@@ -2,6 +2,12 @@
 
 All notable changes to this shiba2sashimi project will be documented in this file.
 
+## [v0.1.2] - 2025-03-19
+
+### Fixed
+
+- Fixed a bug that caused bioconda build to fail.
+
 ## [v0.1.1] - 2025-03-19
 
 ### Added
