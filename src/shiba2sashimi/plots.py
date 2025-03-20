@@ -68,12 +68,12 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		if psi_values_dict:
 			try:
 				psi = psi_values_dict[sample_name]
-				ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi:.2f})",transform=ax.transAxes, fontsize=11, color="black")
+				ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi:.2f})",transform=ax.transAxes, fontsize=10, color="black")
 			except:
 				psi = "NA"
-				ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi})", transform=ax.transAxes, fontsize=11, color="black")
+				ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi})", transform=ax.transAxes, fontsize=10, color="black")
 		else:
-			ax.text(0.01, 0.85, f"{sample_name}", transform=ax.transAxes, fontsize=11, color="black")
+			ax.text(0.01, 0.85, f"{sample_name}", transform=ax.transAxes, fontsize=10, color="black")
 		# Plot junctions
 		region_junctions = junctions_dict[sample_name]
 		for junc_ID in region_junctions:
