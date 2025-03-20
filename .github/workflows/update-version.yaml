@@ -53,10 +53,21 @@ jobs:
           NEW_VERSION=${{ steps.read_version.outputs.NEW_VERSION }}
           sed -i "s/v[0-9]*\.[0-9]*\.[0-9]*/${NEW_VERSION}/" docker/Dockerfile
 
+      - name: Update issue templates with new version
+        run: |
+          NEW_VERSION=${{ steps.read_version.outputs.NEW_VERSION }}
+          sed -i "s/v[0-9]*\.[0-9]*\.[0-9]*/${NEW_VERSION}/" .github/ISSUE_TEMPLATE/*.yaml
+
+      - name: Update pyproject.toml with new version
+        run: |
+          NEW_VERSION=${{ steps.read_version.outputs.NEW_VERSION }}
+          NEW_VERSION=$(echo $NEW_VERSION | sed 's/v//')
+          sed -i "s/[0-9]*\.[0-9]*\.[0-9]*/${NEW_VERSION}/" pyproject.toml
+
       - name: Commit changes
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add README.md src/shiba2sashimi/main.py docker/Dockerfile
+          git add README.md src/shiba2sashimi/main.py docker/Dockerfile .github/ISSUE_TEMPLATE/*.yaml pyproject.toml
           git commit -m "actions: Ready for ${{ steps.read_version.outputs.NEW_VERSION }}"
           git push origin HEAD:${{ steps.get_branch.outputs.BRANCH_NAME }}

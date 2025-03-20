@@ -45,6 +45,9 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 			sample_order = list(experiment_dict.keys())
 	# Set colors for each group
 	colors_list = colors.split(",") if colors else ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99", "#b15928"]
+	if len(colors_list) < len(groups_list):
+		logger.error("Number of colors is less than number of groups")
+		sys.exit(1)
 	try:
 		color_dict = {group: color for group, color in zip(groups_list, colors_list)}
 	except ValueError:
@@ -65,12 +68,12 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		if psi_values_dict:
 			try:
 				psi = psi_values_dict[sample_name]
-				ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi:.2f})",transform=ax.transAxes, fontsize=11, color="black")
+				ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi:.2f})",transform=ax.transAxes, fontsize=10, color="black")
 			except:
 				psi = "NA"
-				ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi})", transform=ax.transAxes, fontsize=11, color="black")
+				ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi})", transform=ax.transAxes, fontsize=10, color="black")
 		else:
-			ax.text(0.01, 0.85, f"{sample_name}", transform=ax.transAxes, fontsize=11, color="black")
+			ax.text(0.01, 0.85, f"{sample_name}", transform=ax.transAxes, fontsize=10, color="black")
 		# Plot junctions
 		region_junctions = junctions_dict[sample_name]
 		for junc_ID in region_junctions:
@@ -96,22 +99,8 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 			dist = np.hypot(dx, dy)
 			# Angle (in degrees) of the line between the two points
 			angle_deg = np.degrees(np.arctan2(dy, dx))
-			# Reduce the height of the arc
-			def set_arc_height_factor(dist): # to control arc curvature
-				if dist < 1000:
-					return 0.05
-				elif dist < 2500:
-					return 0.01
-				elif dist < 5000:
-					return 0.005
-				elif dist < 10000:
-					return 0.001
-				else:
-					return 0.00001
-			arc_height = dist * set_arc_height_factor(dist)  # Reduce height
-			# Set arc height according to the direction
-			if direction == "down":
-				arc_height = -cov_max/2
+			# Set arc height according to the coverage
+			arc_height = cov_max/3 if direction == "up" else -cov_max/2
 			# Set linewidth according to the number of reads
 			linewidth_factor = (2 - 1) / (junc_reads_max - junc_reads_min) if junc_reads_max != junc_reads_min else 1 # Scale linewidth from 1 to 2
 			arc_linewidth = 1 + (junc_reads - junc_reads_min) * linewidth_factor
@@ -160,6 +149,15 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		title += f"{chrom}:{start}-{end}"
 	if pos_id:
 		title += f"\n{pos_id}, {gene_name} ({strand})"
-	fig.suptitle(title, fontsize=12, y=1.45 - 0.1 * n_samples)
+	if title:
+		ax_top = fig.axes[0]  # Get the top subplot
+		bbox = ax_top
+		bbox = ax_top.get_position()
+		x_center = (bbox.x0 + bbox.x1) / 2
+		y_top = bbox.y1
+		plt.gcf().text(
+			x_center, y_top + 0.1,
+			title, fontsize=12, ha='center', va='bottom'
+		)
 	# Save plot
 	plt.savefig(output, dpi=dpi, bbox_inches="tight")
