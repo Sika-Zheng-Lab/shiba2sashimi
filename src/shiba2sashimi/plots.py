@@ -45,6 +45,9 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 			sample_order = list(experiment_dict.keys())
 	# Set colors for each group
 	colors_list = colors.split(",") if colors else ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99", "#b15928"]
+	if len(colors_list) < len(groups_list):
+		logger.error("Number of colors is less than number of groups")
+		sys.exit(1)
 	try:
 		color_dict = {group: color for group, color in zip(groups_list, colors_list)}
 	except ValueError:
