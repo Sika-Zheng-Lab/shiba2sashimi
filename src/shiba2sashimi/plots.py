@@ -7,11 +7,19 @@ logger = logging.getLogger(__name__)
 import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.patches import Arc
+from matplotlib import font_manager
 
 def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, chrom, start, end, output, pos_id = None, coordinate = None, strand = None, gene_name = None, junction_direction_dict = None, psi_values_dict = None, font_family = None, dpi = 300):
 	"""
 	Create Sashimi plot.
 	"""
+	# Make sure that fonts can be found in a Docker/Singularity container
+	font_dir = '/usr/share/fonts/truetype/msttcorefonts/'
+	if os.path.exists(font_dir):
+		for font_file in os.listdir(font_dir):
+			if font_file.endswith('.ttf'):
+				font_manager.fontManager.addfont(os.path.join(font_dir, font_file))
+	# Set font family
 	if font_family:
 		matplotlib.rcParams["font.family"] = font_family
 	chrom = f"chr{chrom}" if not chrom.startswith("chr") and (chrom.isdigit() or chrom in ["X", "Y", "M", "MT"]) else chrom
