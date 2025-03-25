@@ -6,8 +6,17 @@ import logging
 logger = logging.getLogger(__name__)
 import matplotlib
 import matplotlib.pyplot as plt
-from matplotlib.patches import Arc
+from matplotlib.path import Path
+from matplotlib.patches import PathPatch
 from matplotlib import font_manager
+
+def bezier_point(t, p0, p1, p2, p3):
+	return (
+		(1 - t)**3 * np.array(p0) +
+		3 * (1 - t)**2 * t * np.array(p1) +
+		3 * (1 - t) * t**2 * np.array(p2) +
+		t**3 * np.array(p3)
+	)
 
 def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, chrom, start, end, output, pos_id = None, coordinate = None, strand = None, gene_name = None, junction_direction_dict = None, psi_values_dict = None, font_family = None, dpi = 300):
 	"""
@@ -98,39 +107,26 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 			# Draw arc
 			(x1, y1) = (junc_start, cov[junc_start - start]) if direction == "up" else (junc_start, 0)
 			(x2, y2) = (junc_end, cov[junc_end - start]) if direction == "up" else (junc_end, 0)
-			# Calculate midpoint (to use as the center of the arc)
-			mx = (x1 + x2) / 2
-			my = (y1 + y2) / 2
-			# Calculate distance between the two points
-			dx = x2 - x1
-			dy = y2 - y1
-			dist = np.hypot(dx, dy)
-			# Angle (in degrees) of the line between the two points
-			angle_deg = np.degrees(np.arctan2(dy, dx))
-			# Set arc height according to the coverage
-			arc_height = cov_max/3 if direction == "up" else -cov_max/2
+			# Calculate control point for quadratic Bezier curve
+			arc_height = cov_max * 0.5
+			ctrl1 = (x1, y1 + arc_height) if direction == "up" else (x1, y1 - arc_height)
+			ctrl2 = (x2, y2 + arc_height) if direction == "up" else (x2, y2 - arc_height)
+			verts = [ (x1, y1), ctrl1, ctrl2, (x2, y2) ]
+			codes = [ Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4 ]
 			# Set linewidth according to the number of reads
-			linewidth_factor = (2 - 1) / (junc_reads_max - junc_reads_min) if junc_reads_max != junc_reads_min else 1 # Scale linewidth from 1 to 2
-			arc_linewidth = 1 + (junc_reads - junc_reads_min) * linewidth_factor
+			linewidth_factor = (1.5 - 0.5) / (junc_reads_max - junc_reads_min) if junc_reads_max != junc_reads_min else 1  # Scale linewidth from 0.5 to 1.5
+			arc_linewidth = 0.5 + (junc_reads - junc_reads_min) * linewidth_factor
 			if junc_reads == 0:
-				arc_linewidth = 0.5
-			# Create an Arc patch
-			arc = Arc(
-				(mx, my),
-				dist,
-				abs(arc_height),
-				angle=angle_deg,
-				theta1=0 if direction == "up" else 180,
-				theta2=180 if direction == "up" else 360,
-				linewidth=arc_linewidth,
-				edgecolor=color,
-				clip_on=False  # Allow drawing outside the axes
-			)
-			ax.add_patch(arc)
-			text_y_offset = arc_height / 2
+				arc_linewidth = 0.25
+			# Create a Bezier curve patch
+			path = Path(verts, codes)
+			bezier = PathPatch(path, linewidth=arc_linewidth, edgecolor=color, facecolor='none', clip_on=False)
+			ax.add_patch(bezier)
+			# Calculate midpoint (to use as the center of the arc)
+			bx, by = bezier_point(0.5, (x1, y1), ctrl1, ctrl2, (x2, y2))
 			# Add junc_reads as text on the arc
 			ax.text(
-				mx, my + text_y_offset, str(junc_reads),
+				bx, by, str(junc_reads),
 				fontsize=8, ha='center', va='center', color='black',
 				backgroundcolor='white', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round,pad=0'),
 				clip_on=False  # Allow text to be drawn outside the axes
