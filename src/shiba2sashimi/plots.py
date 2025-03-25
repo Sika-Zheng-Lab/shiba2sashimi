@@ -108,7 +108,7 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 			# Angle (in degrees) of the line between the two points
 			angle_deg = np.degrees(np.arctan2(dy, dx))
 			# Set arc height according to the coverage
-			arc_height = dist/4 if direction == "up" else -cov_max/2
+			arc_height = cov_max/3 if direction == "up" else -cov_max/2
 			# Set linewidth according to the number of reads
 			linewidth_factor = (2 - 1) / (junc_reads_max - junc_reads_min) if junc_reads_max != junc_reads_min else 1 # Scale linewidth from 1 to 2
 			arc_linewidth = 1 + (junc_reads - junc_reads_min) * linewidth_factor
