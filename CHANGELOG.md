@@ -2,6 +2,12 @@
 
 All notable changes to this shiba2sashimi project will be documented in this file.
 
+## [v0.1.3] - 2025-??-??
+
+### Changed
+
+- Changed a way to draw junction arcs to avoid drawing arcs outside the plot area; use bezier curves instead of circular arcs.
+
 ## [v0.1.2] - 2025-03-19
 
 ### Fixed
