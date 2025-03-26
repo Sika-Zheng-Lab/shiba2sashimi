@@ -162,14 +162,14 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 	if pos_id:
 		title += f"\n{pos_id}, {gene_name} ({strand})"
 	if title:
-		ax_top = fig.axes[0]  # Get the top subplot
-		bbox = ax_top
-		bbox = ax_top.get_position()
-		x_center = (bbox.x0 + bbox.x1) / 2
-		y_top = bbox.y1
-		plt.gcf().text(
-			x_center, y_top + 0.1,
-			title, fontsize=12, ha='center', va='bottom'
+		ax_top = fig.axes[0]
+		ax_top.annotate(
+			title,
+			xy=(0.5, 1.5),
+			xycoords='axes fraction',
+			ha='center',
+			va='bottom',
+			fontsize=12
 		)
 	# Save plot
 	plt.savefig(output, dpi=dpi, bbox_inches="tight")
