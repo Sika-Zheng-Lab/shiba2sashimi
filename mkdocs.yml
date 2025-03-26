@@ -1,0 +1,86 @@
+site_name: shiba2sashimi
+site_description: Sashimi plots from Shiba results
+site_author: Naoto Kubota
+site_url: https://sika-zheng-lab/shiba2sashimi
+copyright: © 2025 Naoto Kubota
+repo_url: https://github.com/Sika-Zheng-Lab/shiba2sashimi
+repo_name: Sika-Zheng-Lab/shiba2sashimi
+
+theme:
+  name: material
+  palette:
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      primary: red
+      accent: red
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: red
+      accent: red
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: red
+      accent: red
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Roboto
+  language: en
+  features:
+    - search.suggest
+    - search.highlight
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.instant.prefetch
+    - navigation.tracking
+    - navigation.footer
+    - content.code.copy
+    - content.code.select
+    - content.code.annotate
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - admonition
+  - codehilite
+  - extra
+  - pymdownx.highlight:
+      linenums: true
+      linenums_style: pymdownx.inline
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - pymdownx.betterem:
+      smart_enable: all
+  - attr_list
+  - md_in_html
+
+extra:
+  social:
+    - type: "github"
+      icon: fontawesome/brands/github
+      link: "https://github.com/Sika-Zheng-Lab"
+    - type: "docker"
+      icon: fontawesome/brands/docker
+      link: "https://hub.docker.com/u/naotokubota"
+    - type: "twitter"
+      icon: fontawesome/brands/x-twitter
+      link: "https://twitter.com/naoto_kubota"
+
+edit_uri: edit/main/docs/
+
+nav:
+- Home: index.md
+- Installation: installation.md
+- Usage: usage.md
+- Examples:
+  - Basic usage: examples/basic_usage.md
+  - Customizing the plot: examples/customizing_the_plot.md
