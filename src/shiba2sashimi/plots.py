@@ -150,6 +150,8 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 	formatter.set_scientific(False)
 	ax_x.xaxis.set_major_formatter(formatter)
 	ax_x.tick_params(axis='x', labelrotation=45, labelsize=6)
+	for label in ax_x.get_xticklabels():
+		label.set_ha('right')  # Set horizontal alignment to 'right'
 	ax_x.set_xlabel(f"Genomic coordinate ({chrom})", fontsize=10)
 	ax_x.spines['top'].set_visible(False)
 	ax_x.spines['right'].set_visible(False)
