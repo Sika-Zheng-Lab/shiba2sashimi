@@ -62,7 +62,7 @@ jobs:
         run: |
           NEW_VERSION=${{ steps.read_version.outputs.NEW_VERSION }}
           NEW_VERSION=$(echo $NEW_VERSION | sed 's/v//')
-          sed -i "s/[0-9]*\.[0-9]*\.[0-9]*/${NEW_VERSION}/" pyproject.toml
+          sed -i "s/version = \"[0-9]*\.[0-9]*\.[0-9]*\"/version = \"${NEW_VERSION}\"/" pyproject.toml
 
       - name: Commit changes
         run: |
