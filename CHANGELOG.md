@@ -2,7 +2,7 @@
 
 All notable changes to this shiba2sashimi project will be documented in this file.
 
-## [v0.1.3] - 2025-??-??
+## [v0.1.3] - 2025-03-25
 
 ### Changed
 
