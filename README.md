@@ -95,6 +95,16 @@ optional arguments:
   -v, --verbose         Increase verbosity
 ```
 
+## Contributing
+
+Thank you for wanting to improve shiba2sashimi! If you have any bugs or questions, feel free to [open an issue](https://github.com/Sika-Zheng-Lab/shiba2sashimi/issues) or pull request.
+
+## Citation
+
+If you use shiba2sashimi in your research, please cite the original Shiba paper:
+
+Kubota N, Chen L, Zheng S. [Shiba: a versatile computational method for systematic identification of differential RNA splicing across platforms](https://academic.oup.com/nar/article/53/4/gkaf098/8042001). *Nucleic Acids Research*  53(4), 2025, gkaf098.
+
 ## Authors
 
 - Naoto Kubota ([0000-0003-0612-2300](https://orcid.org/0000-0003-0612-2300))
