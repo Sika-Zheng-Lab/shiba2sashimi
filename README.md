@@ -10,7 +10,7 @@
 [![PyPI](https://img.shields.io/pypi/v/shiba2sashimi.svg?label=PyPI&color=orange)](https://pypi.org/project/shiba2sashimi/)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/shiba2sashimi.svg?label=PyPI%20-%20Downloads&color=orange)](https://pypi.org/project/shiba2sashimi/)
 [![Conda](https://img.shields.io/conda/v/bioconda/shiba2sashimi?color=3EB049)](https://anaconda.org/bioconda/shiba2sashimi)
-[![Conda - Downloads](https://img.shields.io/conda/dn/bioconda/shiba2sashimi?color=3EB049)](https://anaconda.org/bioconda/shiba2sashimi)
+[![Conda - Downloads](https://img.shields.io/conda/dn/bioconda/shiba2sashimi?label=Conda%20-%20Downloads&color=3EB049)](https://anaconda.org/bioconda/shiba2sashimi)
 [![Docker](https://img.shields.io/docker/v/naotokubota/shiba2sashimi?color=blue&label=Docker)](https://hub.docker.com/r/naotokubota/shiba2sashimi)
 [![Docker Pulls](https://img.shields.io/docker/pulls/naotokubota/shiba2sashimi)](https://hub.docker.com/r/naotokubota/shiba2sashimi)
 [![Docker Image Size](https://img.shields.io/docker/image-size/naotokubota/shiba2sashimi)](https://hub.docker.com/r/naotokubota/shiba2sashimi)
