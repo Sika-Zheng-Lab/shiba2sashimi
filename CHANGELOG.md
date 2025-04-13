@@ -2,11 +2,11 @@
 
 All notable changes to this shiba2sashimi project will be documented in this file.
 
-## [v0.1.4] - 2025-??-??
+## [v0.1.4] - 2025-04-13
 
 ### Changed
 
-- Improve x-axis labeling to avoid overlapping with the plot area.
+- Improved x-axis labeling to avoid overlapping with the plot area.
 
 ## [v0.1.3] - 2025-03-25
 
