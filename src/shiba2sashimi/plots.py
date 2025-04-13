@@ -8,6 +8,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.path import Path
 from matplotlib.patches import PathPatch
+from matplotlib.ticker import MaxNLocator, ScalarFormatter
 from matplotlib import font_manager
 
 def bezier_point(t, p0, p1, p2, p3):
@@ -38,7 +39,7 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 	fig_width = 8
 	fig = plt.figure(figsize=(fig_width, fig_height))
 	# Subplots for coverage
-	gs = fig.add_gridspec(n_samples, 1, hspace=0.8)
+	gs = fig.add_gridspec(n_samples + 1, 1, hspace=0.8, height_ratios=[1] * n_samples + [0.2])
 	# Set sample order
 	sample_order = []
 	if groups:
@@ -134,19 +135,28 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		ax.set_xlim(start, end)
 		ax.set_ylim(bottom = 0, top = max(cov) * 1.4)
 		ax.set_ylabel("Coverage", fontsize=8)
-		if i < n_samples - 1:
-			ax.set_xticklabels([])
-		else:
-			ax.set_xlabel(f"Genomic coordinate ({chrom})", fontsize=10)
 		# Despine top, right, and bottom
 		ax.spines['top'].set_visible(False)
 		ax.spines['right'].set_visible(False)
 		ax.spines['bottom'].set_visible(False)
 		# Remove xticks for all samples
 		ax.set_xticks([])
-	# Add xticks to the bottom subplot
-	ax.set_xticks(np.arange(start, end, step=(end - start) // 10))
-	ax.set_xticklabels(np.arange(start, end, step=(end - start) // 10), rotation=45, ha='right', fontsize=6)
+	# Create a separate x-axis at the bottom
+	ax_x = fig.add_subplot(gs[-1, 0])
+	ax_x.set_xlim(start, end)
+	ax_x.xaxis.set_major_locator(MaxNLocator(nbins=10, integer=True)) # Set number of ticks
+	# Disable scientific notation
+	formatter = ScalarFormatter(useOffset=False, useMathText=False)
+	formatter.set_scientific(False)
+	ax_x.xaxis.set_major_formatter(formatter)
+	ax_x.tick_params(axis='x', labelrotation=45, labelsize=6)
+	for label in ax_x.get_xticklabels():
+		label.set_ha('right')  # Set horizontal alignment to 'right'
+	ax_x.set_xlabel(f"Genomic coordinate ({chrom})", fontsize=10)
+	ax_x.spines['top'].set_visible(False)
+	ax_x.spines['right'].set_visible(False)
+	ax_x.spines['left'].set_visible(False)
+	ax_x.get_yaxis().set_visible(False)
 	# Put title on the top subplot
 	title = ""
 	if coordinate:
@@ -154,14 +164,14 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 	if pos_id:
 		title += f"\n{pos_id}, {gene_name} ({strand})"
 	if title:
-		ax_top = fig.axes[0]  # Get the top subplot
-		bbox = ax_top
-		bbox = ax_top.get_position()
-		x_center = (bbox.x0 + bbox.x1) / 2
-		y_top = bbox.y1
-		plt.gcf().text(
-			x_center, y_top + 0.1,
-			title, fontsize=12, ha='center', va='bottom'
+		ax_top = fig.axes[0]
+		ax_top.annotate(
+			title,
+			xy=(0.5, 1.5),
+			xycoords='axes fraction',
+			ha='center',
+			va='bottom',
+			fontsize=12
 		)
 	# Save plot
 	plt.savefig(output, dpi=dpi, bbox_inches="tight")

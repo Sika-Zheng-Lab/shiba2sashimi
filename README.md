@@ -1,4 +1,4 @@
-# 🐕 shiba2sashimi 🍣 (v0.1.3)
+# 🐕 shiba2sashimi 🍣 (v0.1.4)
 
 [![GitHub License](https://img.shields.io/github/license/Sika-Zheng-Lab/shiba2sashimi)](https://github.com/Sika-Zheng-Lab/shiba2sashimi/blob/main/LICENSE)
 [![DOI](https://zenodo.org/badge/947608002.svg)](https://doi.org/10.5281/zenodo.15042265)
@@ -8,7 +8,10 @@
 [![Publish PyPI](https://github.com/Sika-Zheng-Lab/shiba2sashimi/actions/workflows/publish.yaml/badge.svg)](https://github.com/Sika-Zheng-Lab/shiba2sashimi/actions/workflows/publish.yaml)
 [![Python](https://img.shields.io/pypi/pyversions/shiba2sashimi.svg?label=Python&color=blue)](https://pypi.org/project/shiba2sashimi/)
 [![PyPI](https://img.shields.io/pypi/v/shiba2sashimi.svg?label=PyPI&color=orange)](https://pypi.org/project/shiba2sashimi/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/shiba2sashimi.svg?label=PyPI%20-%20Downloads&color=orange)](https://pypi.org/project/shiba2sashimi/)
 [![Conda](https://img.shields.io/conda/v/bioconda/shiba2sashimi?color=3EB049)](https://anaconda.org/bioconda/shiba2sashimi)
+[![Conda - Downloads](https://img.shields.io/conda/dn/bioconda/shiba2sashimi?label=Conda%20-%20Downloads&color=3EB049)](https://anaconda.org/bioconda/shiba2sashimi)
+[![Docker](https://img.shields.io/docker/v/naotokubota/shiba2sashimi?color=blue&label=Docker)](https://hub.docker.com/r/naotokubota/shiba2sashimi)
 [![Docker Pulls](https://img.shields.io/docker/pulls/naotokubota/shiba2sashimi)](https://hub.docker.com/r/naotokubota/shiba2sashimi)
 [![Docker Image Size](https://img.shields.io/docker/image-size/naotokubota/shiba2sashimi)](https://hub.docker.com/r/naotokubota/shiba2sashimi)
 
@@ -67,7 +70,7 @@ docker pull naotokubota/shiba2sashimi
 usage: shiba2sashimi [-h] -e EXPERIMENT -s SHIBA -o OUTPUT [--id ID] [-c COORDINATE] [--samples SAMPLES] [--groups GROUPS] [--colors COLORS] [--extend_up EXTEND_UP] [--extend_down EXTEND_DOWN]
                      [--smoothing_window_size SMOOTHING_WINDOW_SIZE] [--font_family FONT_FAMILY] [--dpi DPI] [-v]
 
-shiba2sashimi v0.1.3 - Create Sashimi plot from Shiba output
+shiba2sashimi v0.1.4 - Create Sashimi plot from Shiba output
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -94,6 +97,16 @@ optional arguments:
   --dpi DPI             DPI of the output figure. Default: 300
   -v, --verbose         Increase verbosity
 ```
+
+## Contributing
+
+Thank you for wanting to improve shiba2sashimi! If you have any bugs or questions, feel free to [open an issue](https://github.com/Sika-Zheng-Lab/shiba2sashimi/issues) or pull request.
+
+## Citation
+
+If you use shiba2sashimi in your research, please cite the original Shiba paper:
+
+Kubota N, Chen L, Zheng S. [Shiba: a versatile computational method for systematic identification of differential RNA splicing across platforms](https://academic.oup.com/nar/article/53/4/gkaf098/8042001). *Nucleic Acids Research*  53(4), 2025, gkaf098.
 
 ## Authors
 
