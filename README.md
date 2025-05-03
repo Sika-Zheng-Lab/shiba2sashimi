@@ -46,9 +46,8 @@ pip install .
 ### conda
 
 ```bash
-conda create -n shiba2sashimi python=3.9
+conda create -n shiba2sashimi -c bioconda -c conda-forge shiba2sashimi
 conda activate shiba2sashimi
-conda install -c bioconda shiba2sashimi
 ```
 
 ### Docker
