@@ -6,7 +6,7 @@ from . import tables, bams, plots, junc, utils
 # Configure logger
 logger = logging.getLogger(__name__)
 # Set version
-VERSION = "v0.1.4"
+VERSION = "v0.1.5"
 
 def parse_args():
 	parser = argparse.ArgumentParser(
@@ -14,7 +14,7 @@ def parse_args():
 	)
 
 	parser.add_argument("-e", "--experiment", required = True, help = "Experiment table used for Shiba")
-	parser.add_argument("-s", "--shiba", required = True, help = "Shiba output directory")
+	parser.add_argument("-s", "--shiba", required = True, help = "Shiba working directory")
 	parser.add_argument("-o", "--output", required = True, help = "Output file")
 	parser.add_argument("--id", required = False, help = "Positional ID (pos_id) of the event to plot")
 	parser.add_argument("-c", "--coordinate", required = False, help = "Coordinates of the region to plot")

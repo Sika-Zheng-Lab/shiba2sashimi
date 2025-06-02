@@ -1,4 +1,4 @@
-# 🐕 shiba2sashimi 🍣 (v0.1.4)
+# 🐕 shiba2sashimi 🍣 (v0.1.5)
 
 [![GitHub License](https://img.shields.io/github/license/Sika-Zheng-Lab/shiba2sashimi)](https://github.com/Sika-Zheng-Lab/shiba2sashimi/blob/main/LICENSE)
 [![DOI](https://zenodo.org/badge/947608002.svg)](https://doi.org/10.5281/zenodo.15042265)
@@ -21,7 +21,7 @@ A utility to create Sashimi plots, a publication-quality visualization of RNA-se
 
 ```bash
 shiba2sashimi -e /path/to/Shiba/experiment_table.tsv \
--s /path/to/Shiba/output/ -o img/sashimi_example.png \
+-s /path/to/Shiba/workdir/ -o img/sashimi_example.png \
 --id "SE@chr2@157561213-157561293@157560260-157561542"
 ```
 
@@ -46,9 +46,8 @@ pip install .
 ### conda
 
 ```bash
-conda create -n shiba2sashimi python=3.9
+conda create -n shiba2sashimi -c bioconda -c conda-forge shiba2sashimi
 conda activate shiba2sashimi
-conda install -c bioconda shiba2sashimi
 ```
 
 ### Docker
@@ -70,14 +69,14 @@ docker pull naotokubota/shiba2sashimi
 usage: shiba2sashimi [-h] -e EXPERIMENT -s SHIBA -o OUTPUT [--id ID] [-c COORDINATE] [--samples SAMPLES] [--groups GROUPS] [--colors COLORS] [--extend_up EXTEND_UP] [--extend_down EXTEND_DOWN]
                      [--smoothing_window_size SMOOTHING_WINDOW_SIZE] [--font_family FONT_FAMILY] [--dpi DPI] [-v]
 
-shiba2sashimi v0.1.4 - Create Sashimi plot from Shiba output
+shiba2sashimi v0.1.5 - Create Sashimi plot from Shiba output
 
 optional arguments:
   -h, --help            show this help message and exit
   -e EXPERIMENT, --experiment EXPERIMENT
                         Experiment table used for Shiba
   -s SHIBA, --shiba SHIBA
-                        Shiba output directory
+                        Shiba working directory
   -o OUTPUT, --output OUTPUT
                         Output file
   --id ID               Positional ID (pos_id) of the event to plot
