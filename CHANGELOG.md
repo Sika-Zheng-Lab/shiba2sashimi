@@ -2,6 +2,12 @@
 
 All notable changes to this shiba2sashimi project will be documented in this file.
 
+## [v0.1.5] - 2025-06-02
+
+### Fixed
+
+- Corrected chromosome prefix handling in read coverage calculation to avoid KeyError when chromosome names do not match the expected format.
+
 ## [v0.1.4] - 2025-04-13
 
 ### Changed
