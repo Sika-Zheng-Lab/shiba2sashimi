@@ -21,7 +21,7 @@ A utility to create Sashimi plots, a publication-quality visualization of RNA-se
 
 ```bash
 shiba2sashimi -e /path/to/Shiba/experiment_table.tsv \
--s /path/to/Shiba/output/ -o img/sashimi_example.png \
+-s /path/to/Shiba/workdir/ -o img/sashimi_example.png \
 --id "SE@chr2@157561213-157561293@157560260-157561542"
 ```
 
@@ -76,7 +76,7 @@ optional arguments:
   -e EXPERIMENT, --experiment EXPERIMENT
                         Experiment table used for Shiba
   -s SHIBA, --shiba SHIBA
-                        Shiba output directory
+                        Shiba working directory
   -o OUTPUT, --output OUTPUT
                         Output file
   --id ID               Positional ID (pos_id) of the event to plot
