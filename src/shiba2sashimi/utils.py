@@ -11,6 +11,8 @@ def coord2int(coordinate):
 	try:
 		# Split by colon and dash
 		chrom, pos = coordinate.split(":")
+		# Add "chr" prefix if not present
+		chrom = f"chr{chrom}" if not chrom.startswith("chr") and (chrom.isdigit() or chrom in ["X", "Y", "M", "MT"]) else chrom
 		start, end = pos.split("-")
 		# Convert to integer
 		start = int(start)
@@ -66,7 +68,7 @@ def posid2int(positional_id, shiba_path, extend_up, extend_down) -> tuple:
 		raise ValueError(f"Positional ID not found in PSI file: {positional_id}")
 		sys.exit(1)
 	# Get chromosome, start, and end from positional ID
-	chrom = positional_id.split("@")[1].replace("chr", "")
+	chrom = positional_id.split("@")[1]
 	# Get strand from PSI file
 	strand = psi_file_col_dict["strand"]
 	# Get gene name from PSI file
