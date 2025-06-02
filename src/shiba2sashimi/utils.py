@@ -69,6 +69,8 @@ def posid2int(positional_id, shiba_path, extend_up, extend_down) -> tuple:
 		sys.exit(1)
 	# Get chromosome, start, and end from positional ID
 	chrom = positional_id.split("@")[1]
+	# Add "chr" prefix if not present
+	chrom = f"chr{chrom}" if not chrom.startswith("chr") and (chrom.isdigit() or chrom in ["X", "Y", "M", "MT"]) else chrom
 	# Get strand from PSI file
 	strand = psi_file_col_dict["strand"]
 	# Get gene name from PSI file
