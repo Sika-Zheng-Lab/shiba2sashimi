@@ -2,6 +2,16 @@
 
 All notable changes to this shiba2sashimi project will be documented in this file.
 
+## [v0.1.6] - 2025-??-??
+
+### Added
+
+- Added `--width` option to allow users to specify the width of the plot.
+
+### Changed
+
+- Adjusted font size of labels to improve readability.
+
 ## [v0.1.5] - 2025-06-02
 
 ### Fixed
