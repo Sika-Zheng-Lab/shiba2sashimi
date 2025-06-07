@@ -21,6 +21,7 @@ def parse_args():
 	parser.add_argument("--samples", required = False, help = "Samples to plot. e.g. sample1,sample2,sample3 Default: all samples in the experiment table")
 	parser.add_argument("--groups", required = False, help = "Groups to plot. e.g. group1,group2,group3 Default: all groups in the experiment table. Overrides --samples")
 	parser.add_argument("--colors", required = False, help = "Colors for each group. e.g. red,orange,blue")
+	parser.add_argument("--width", default = 8, type = int, help = "Width of the output figure. Default: %(default)s")
 	parser.add_argument("--extend_up", default = 500, type = int, help = "Extend the plot upstream. Only used when not providing coordinates. Default: %(default)s")
 	parser.add_argument("--extend_down", default = 500, type = int, help = "Extend the plot downstream. Only used when not providing coordinates. Default: %(default)s")
 	parser.add_argument("--smoothing_window_size", default = 21, type = int, help = "Window size for median filter to smooth coverage plot. Greater value gives smoother plot. Default: %(default)s")
@@ -125,6 +126,7 @@ def main():
 		samples = args.samples if not args.groups else ",".join(coverage_dict.keys()),
 		groups = args.groups,
 		colors = args.colors,
+		fig_width = args.width,
 		chrom = chrom,
 		start = start,
 		end = end,

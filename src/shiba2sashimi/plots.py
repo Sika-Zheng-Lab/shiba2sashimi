@@ -19,7 +19,7 @@ def bezier_point(t, p0, p1, p2, p3):
 		t**3 * np.array(p3)
 	)
 
-def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, chrom, start, end, output, pos_id = None, coordinate = None, strand = None, gene_name = None, junction_direction_dict = None, psi_values_dict = None, font_family = None, dpi = 300):
+def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, fig_width, chrom, start, end, output, pos_id = None, coordinate = None, strand = None, gene_name = None, junction_direction_dict = None, psi_values_dict = None, font_family = None, dpi = 300):
 	"""
 	Create Sashimi plot.
 	"""
@@ -36,10 +36,9 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 	# Set figure size
 	n_samples = len(coverage_dict)
 	fig_height = 1 * n_samples
-	fig_width = 8
 	fig = plt.figure(figsize=(fig_width, fig_height))
 	# Subplots for coverage
-	gs = fig.add_gridspec(n_samples + 1, 1, hspace=0.8, height_ratios=[1] * n_samples + [0.2])
+	gs = fig.add_gridspec(n_samples + 1, 1, hspace=1.0, height_ratios=[1] * n_samples + [0.05])
 	# Set sample order
 	sample_order = []
 	if groups:
@@ -86,12 +85,12 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		if psi_values_dict:
 			try:
 				psi = psi_values_dict[sample_name]
-				ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi:.2f})",transform=ax.transAxes, fontsize=10, color="black")
+				ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi:.2f})",transform=ax.transAxes, fontsize=8, color="black")
 			except:
 				psi = "NA"
-				ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi})", transform=ax.transAxes, fontsize=10, color="black")
+				ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi})", transform=ax.transAxes, fontsize=8, color="black")
 		else:
-			ax.text(0.01, 0.85, f"{sample_name}", transform=ax.transAxes, fontsize=10, color="black")
+			ax.text(0.01, 0.85, f"{sample_name}", transform=ax.transAxes, fontsize=8, color="black")
 		# Plot junctions
 		region_junctions = junctions_dict[sample_name]
 		for junc_ID in region_junctions:
@@ -134,7 +133,8 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 			)
 		ax.set_xlim(start, end)
 		ax.set_ylim(bottom = 0, top = max(cov) * 1.4)
-		ax.set_ylabel("Coverage", fontsize=8)
+		ax.set_ylabel("Coverage", fontsize=6)
+		ax.tick_params(axis='y', labelsize=6)
 		# Despine top, right, and bottom
 		ax.spines['top'].set_visible(False)
 		ax.spines['right'].set_visible(False)
