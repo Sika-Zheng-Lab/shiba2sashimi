@@ -66,7 +66,7 @@ docker pull naotokubota/shiba2sashimi
 ## Usage
 
 ```bash
-usage: shiba2sashimi [-h] -e EXPERIMENT -s SHIBA -o OUTPUT [--id ID] [-c COORDINATE] [--samples SAMPLES] [--groups GROUPS] [--colors COLORS] [--extend_up EXTEND_UP] [--extend_down EXTEND_DOWN]
+usage: shiba2sashimi [-h] -e EXPERIMENT -s SHIBA -o OUTPUT [--id ID] [-c COORDINATE] [--samples SAMPLES] [--groups GROUPS] [--colors COLORS] [--width WIDTH] [--extend_up EXTEND_UP] [--extend_down EXTEND_DOWN]
                      [--smoothing_window_size SMOOTHING_WINDOW_SIZE] [--font_family FONT_FAMILY] [--dpi DPI] [-v]
 
 shiba2sashimi v0.1.5 - Create Sashimi plot from Shiba output
@@ -85,6 +85,7 @@ optional arguments:
   --samples SAMPLES     Samples to plot. e.g. sample1,sample2,sample3 Default: all samples in the experiment table
   --groups GROUPS       Groups to plot. e.g. group1,group2,group3 Default: all groups in the experiment table. Overrides --samples
   --colors COLORS       Colors for each group. e.g. red,orange,blue
+  --width WIDTH         Width of the output figure. Default: 8
   --extend_up EXTEND_UP
                         Extend the plot upstream. Only used when not providing coordinates. Default: 500
   --extend_down EXTEND_DOWN
