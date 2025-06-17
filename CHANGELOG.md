@@ -4,6 +4,10 @@ All notable changes to this shiba2sashimi project will be documented in this fil
 
 ## [v0.1.6] - 2025-??-??
 
+### Fixed
+
+- Fixed a bug that caused an error when the *csi* index file for the BAM file exists instead of the *bai* index file.
+
 ### Added
 
 - Added `--width` option to allow users to specify the width of the plot.
