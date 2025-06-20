@@ -26,6 +26,8 @@ def parse_args():
 	parser.add_argument("--extend_down", default = 500, type = int, help = "Extend the plot downstream. Only used when not providing coordinates. Default: %(default)s")
 	parser.add_argument("--smoothing_window_size", default = 21, type = int, help = "Window size for median filter to smooth coverage plot. Greater value gives smoother plot. Default: %(default)s")
 	parser.add_argument("--font_family", help = "Font family for labels")
+	parser.add_argument("--nolabel", action = "store_true", help = "Do not add sample labels and PSI values to the plot")
+	parser.add_argument("--nojunc", action = "store_true", help = "Do not plot junction arcs and junction read counts to the plot")
 	parser.add_argument("--dpi", default = 300, type = int, help = "DPI of the output figure. Default: %(default)s")
 	parser.add_argument("-v", "--verbose", action = "store_true", help = "Increase verbosity")
 	args = parser.parse_args()
@@ -138,7 +140,9 @@ def main():
 		junction_direction_dict = junction_direction_dict if args.id else None,
 		psi_values_dict = psi_values_dict if args.id else None,
 		font_family = args.font_family if args.font_family else None,
-		dpi = args.dpi
+		dpi = args.dpi,
+		nolabel = args.nolabel,
+		nojunc = args.nojunc
 	)
 
 	# Finish

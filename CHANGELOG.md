@@ -2,7 +2,7 @@
 
 All notable changes to this shiba2sashimi project will be documented in this file.
 
-## [v0.1.6] - 2025-??-??
+## [v0.1.6] - 2025-06-20
 
 ### Fixed
 
@@ -11,6 +11,7 @@ All notable changes to this shiba2sashimi project will be documented in this fil
 ### Added
 
 - Added `--width` option to allow users to specify the width of the plot.
+- Added `--nolabel` and `--nojunc` options to allow users to disable sample labels and junction arcs, respectively.
 
 ### Changed
 
