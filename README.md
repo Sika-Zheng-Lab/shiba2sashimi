@@ -67,7 +67,7 @@ docker pull naotokubota/shiba2sashimi
 
 ```bash
 usage: shiba2sashimi [-h] -e EXPERIMENT -s SHIBA -o OUTPUT [--id ID] [-c COORDINATE] [--samples SAMPLES] [--groups GROUPS] [--colors COLORS] [--width WIDTH] [--extend_up EXTEND_UP] [--extend_down EXTEND_DOWN]
-                     [--smoothing_window_size SMOOTHING_WINDOW_SIZE] [--font_family FONT_FAMILY] [--dpi DPI] [-v]
+                     [--smoothing_window_size SMOOTHING_WINDOW_SIZE] [--font_family FONT_FAMILY] [--nolabel] [--nojunc] [--dpi DPI] [-v]
 
 shiba2sashimi v0.1.5 - Create Sashimi plot from Shiba output
 
@@ -94,6 +94,8 @@ optional arguments:
                         Window size for median filter to smooth coverage plot. Greater value gives smoother plot. Default: 21
   --font_family FONT_FAMILY
                         Font family for labels
+  --nolabel             Do not add sample labels and PSI values to the plot
+  --nojunc              Do not plot junction arcs and junction read counts to the plot
   --dpi DPI             DPI of the output figure. Default: 300
   -v, --verbose         Increase verbosity
 ```
