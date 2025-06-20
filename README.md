@@ -1,4 +1,4 @@
-# 🐕 shiba2sashimi 🍣 (v0.1.5)
+# 🐕 shiba2sashimi 🍣 (v0.1.6)
 
 [![GitHub License](https://img.shields.io/github/license/Sika-Zheng-Lab/shiba2sashimi)](https://github.com/Sika-Zheng-Lab/shiba2sashimi/blob/main/LICENSE)
 [![DOI](https://zenodo.org/badge/947608002.svg)](https://doi.org/10.5281/zenodo.15042265)
@@ -66,10 +66,10 @@ docker pull naotokubota/shiba2sashimi
 ## Usage
 
 ```bash
-usage: shiba2sashimi [-h] -e EXPERIMENT -s SHIBA -o OUTPUT [--id ID] [-c COORDINATE] [--samples SAMPLES] [--groups GROUPS] [--colors COLORS] [--extend_up EXTEND_UP] [--extend_down EXTEND_DOWN]
-                     [--smoothing_window_size SMOOTHING_WINDOW_SIZE] [--font_family FONT_FAMILY] [--dpi DPI] [-v]
+usage: shiba2sashimi [-h] -e EXPERIMENT -s SHIBA -o OUTPUT [--id ID] [-c COORDINATE] [--samples SAMPLES] [--groups GROUPS] [--colors COLORS] [--width WIDTH] [--extend_up EXTEND_UP] [--extend_down EXTEND_DOWN]
+                     [--smoothing_window_size SMOOTHING_WINDOW_SIZE] [--font_family FONT_FAMILY] [--nolabel] [--nojunc] [--dpi DPI] [-v]
 
-shiba2sashimi v0.1.5 - Create Sashimi plot from Shiba output
+shiba2sashimi v0.1.6 - Create Sashimi plot from Shiba output
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -85,6 +85,7 @@ optional arguments:
   --samples SAMPLES     Samples to plot. e.g. sample1,sample2,sample3 Default: all samples in the experiment table
   --groups GROUPS       Groups to plot. e.g. group1,group2,group3 Default: all groups in the experiment table. Overrides --samples
   --colors COLORS       Colors for each group. e.g. red,orange,blue
+  --width WIDTH         Width of the output figure. Default: 8
   --extend_up EXTEND_UP
                         Extend the plot upstream. Only used when not providing coordinates. Default: 500
   --extend_down EXTEND_DOWN
@@ -93,6 +94,8 @@ optional arguments:
                         Window size for median filter to smooth coverage plot. Greater value gives smoother plot. Default: 21
   --font_family FONT_FAMILY
                         Font family for labels
+  --nolabel             Do not add sample labels and PSI values to the plot
+  --nojunc              Do not plot junction arcs and junction read counts to the plot
   --dpi DPI             DPI of the output figure. Default: 300
   -v, --verbose         Increase verbosity
 ```

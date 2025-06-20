@@ -28,10 +28,10 @@ def get_coverage(bam_path, chrom, start, end, window_size=21):
 		logger.error("Please double check and provide a valid BAM file")
 		raise FileNotFoundError(f"BAM file not found: {bam_path}")
 		sys.exit(1)
-	if not os.path.exists(f"{bam_path}.bai"):
-		logger.error(f"BAM index not found: {bam_path}.bai")
+	if not (os.path.exists(f"{bam_path}.bai") or os.path.exists(f"{bam_path}.csi")):
+		logger.error(f"BAM index not found: {bam_path}.bai or {bam_path}.csi")
 		logger.error("Please create index using samtools index")
-		raise FileNotFoundError(f"BAM index not found: {bam_path}.bai")
+		raise FileNotFoundError(f"BAM index not found: {bam_path}.bai or {bam_path}.csi")
 		sys.exit(1)
 	# Initialize coverage array
 	arr_len = end - start

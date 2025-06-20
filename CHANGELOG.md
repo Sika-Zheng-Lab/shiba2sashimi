@@ -2,6 +2,21 @@
 
 All notable changes to this shiba2sashimi project will be documented in this file.
 
+## [v0.1.6] - 2025-06-20
+
+### Fixed
+
+- Fixed a bug that caused an error when the *csi* index file for the BAM file exists instead of the *bai* index file.
+
+### Added
+
+- Added `--width` option to allow users to specify the width of the plot.
+- Added `--nolabel` and `--nojunc` options to allow users to disable sample labels and junction arcs, respectively.
+
+### Changed
+
+- Adjusted font size of labels to improve readability.
+
 ## [v0.1.5] - 2025-06-02
 
 ### Fixed

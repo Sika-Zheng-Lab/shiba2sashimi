@@ -19,7 +19,11 @@ def bezier_point(t, p0, p1, p2, p3):
 		t**3 * np.array(p3)
 	)
 
-def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, chrom, start, end, output, pos_id = None, coordinate = None, strand = None, gene_name = None, junction_direction_dict = None, psi_values_dict = None, font_family = None, dpi = 300):
+def sashimi(
+		coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, fig_width, chrom, start, end, output,
+		pos_id = None, coordinate = None, strand = None, gene_name = None, junction_direction_dict = None, psi_values_dict = None,
+		font_family = None, dpi = 300, nolabel = False, nojunc = False
+	):
 	"""
 	Create Sashimi plot.
 	"""
@@ -36,10 +40,9 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 	# Set figure size
 	n_samples = len(coverage_dict)
 	fig_height = 1 * n_samples
-	fig_width = 8
 	fig = plt.figure(figsize=(fig_width, fig_height))
 	# Subplots for coverage
-	gs = fig.add_gridspec(n_samples + 1, 1, hspace=0.8, height_ratios=[1] * n_samples + [0.2])
+	gs = fig.add_gridspec(n_samples + 1, 1, hspace=1.0, height_ratios=[1] * n_samples + [0.05])
 	# Set sample order
 	sample_order = []
 	if groups:
@@ -83,58 +86,65 @@ def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, col
 		color = color_dict[group]
 		ax.fill_between(x_positions, cov, step="pre", color=color, alpha=0.8)
 		# Add sample name and PSI value
-		if psi_values_dict:
-			try:
-				psi = psi_values_dict[sample_name]
-				ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi:.2f})",transform=ax.transAxes, fontsize=10, color="black")
-			except:
-				psi = "NA"
-				ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi})", transform=ax.transAxes, fontsize=10, color="black")
+		if nolabel:
+			logger.debug(f"Sample {sample_name} is not labeled")
 		else:
-			ax.text(0.01, 0.85, f"{sample_name}", transform=ax.transAxes, fontsize=10, color="black")
+			if psi_values_dict:
+				try:
+					psi = psi_values_dict[sample_name]
+					ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi:.2f})",transform=ax.transAxes, fontsize=8, color="black")
+				except:
+					psi = "NA"
+					ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi})", transform=ax.transAxes, fontsize=8, color="black")
+			else:
+				ax.text(0.01, 0.85, f"{sample_name}", transform=ax.transAxes, fontsize=8, color="black")
 		# Plot junctions
-		region_junctions = junctions_dict[sample_name]
-		for junc_ID in region_junctions:
-			# Get direction of junction
-			direction = junction_direction_dict[junc_ID] if junction_direction_dict else "up"
-			# Get junction coordinates
-			junc_start = int(junc_ID.split(":")[1].split("-")[0]) - 1 # 0-based
-			junc_end = int(junc_ID.split(":")[1].split("-")[1])
-			# Get number of reads
-			junc_reads = region_junctions[junc_ID]
-			# Ignore if junction is out of range
-			if not (start < junc_start < end and start < junc_end < end):
-				continue
-			# Draw arc
-			(x1, y1) = (junc_start, cov[junc_start - start]) if direction == "up" else (junc_start, 0)
-			(x2, y2) = (junc_end, cov[junc_end - start]) if direction == "up" else (junc_end, 0)
-			# Calculate control point for quadratic Bezier curve
-			arc_height = cov_max * 0.5
-			ctrl1 = (x1, y1 + arc_height) if direction == "up" else (x1, y1 - arc_height)
-			ctrl2 = (x2, y2 + arc_height) if direction == "up" else (x2, y2 - arc_height)
-			verts = [ (x1, y1), ctrl1, ctrl2, (x2, y2) ]
-			codes = [ Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4 ]
-			# Set linewidth according to the number of reads
-			linewidth_factor = (1.5 - 0.5) / (junc_reads_max - junc_reads_min) if junc_reads_max != junc_reads_min else 1  # Scale linewidth from 0.5 to 1.5
-			arc_linewidth = 0.5 + (junc_reads - junc_reads_min) * linewidth_factor
-			if junc_reads == 0:
-				arc_linewidth = 0.25
-			# Create a Bezier curve patch
-			path = Path(verts, codes)
-			bezier = PathPatch(path, linewidth=arc_linewidth, edgecolor=color, facecolor='none', clip_on=False)
-			ax.add_patch(bezier)
-			# Calculate midpoint (to use as the center of the arc)
-			bx, by = bezier_point(0.5, (x1, y1), ctrl1, ctrl2, (x2, y2))
-			# Add junc_reads as text on the arc
-			ax.text(
-				bx, by, str(junc_reads),
-				fontsize=8, ha='center', va='center', color='black',
-				backgroundcolor='white', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round,pad=0'),
-				clip_on=False  # Allow text to be drawn outside the axes
-			)
+		if nojunc:
+			logger.debug(f"No junctions are plotted for sample {sample_name}")
+		else:
+			region_junctions = junctions_dict[sample_name]
+			for junc_ID in region_junctions:
+				# Get direction of junction
+				direction = junction_direction_dict[junc_ID] if junction_direction_dict else "up"
+				# Get junction coordinates
+				junc_start = int(junc_ID.split(":")[1].split("-")[0]) - 1 # 0-based
+				junc_end = int(junc_ID.split(":")[1].split("-")[1])
+				# Get number of reads
+				junc_reads = region_junctions[junc_ID]
+				# Ignore if junction is out of range
+				if not (start < junc_start < end and start < junc_end < end):
+					continue
+				# Draw arc
+				(x1, y1) = (junc_start, cov[junc_start - start]) if direction == "up" else (junc_start, 0)
+				(x2, y2) = (junc_end, cov[junc_end - start]) if direction == "up" else (junc_end, 0)
+				# Calculate control point for quadratic Bezier curve
+				arc_height = cov_max * 0.5
+				ctrl1 = (x1, y1 + arc_height) if direction == "up" else (x1, y1 - arc_height)
+				ctrl2 = (x2, y2 + arc_height) if direction == "up" else (x2, y2 - arc_height)
+				verts = [ (x1, y1), ctrl1, ctrl2, (x2, y2) ]
+				codes = [ Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4 ]
+				# Set linewidth according to the number of reads
+				linewidth_factor = (1.5 - 0.5) / (junc_reads_max - junc_reads_min) if junc_reads_max != junc_reads_min else 1  # Scale linewidth from 0.5 to 1.5
+				arc_linewidth = 0.5 + (junc_reads - junc_reads_min) * linewidth_factor
+				if junc_reads == 0:
+					arc_linewidth = 0.25
+				# Create a Bezier curve patch
+				path = Path(verts, codes)
+				bezier = PathPatch(path, linewidth=arc_linewidth, edgecolor=color, facecolor='none', clip_on=False)
+				ax.add_patch(bezier)
+				# Calculate midpoint (to use as the center of the arc)
+				bx, by = bezier_point(0.5, (x1, y1), ctrl1, ctrl2, (x2, y2))
+				# Add junc_reads as text on the arc
+				ax.text(
+					bx, by, str(junc_reads),
+					fontsize=8, ha='center', va='center', color='black',
+					backgroundcolor='white', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round,pad=0'),
+					clip_on=False  # Allow text to be drawn outside the axes
+				)
 		ax.set_xlim(start, end)
 		ax.set_ylim(bottom = 0, top = max(cov) * 1.4)
-		ax.set_ylabel("Coverage", fontsize=8)
+		ax.set_ylabel("Coverage", fontsize=6)
+		ax.tick_params(axis='y', labelsize=6)
 		# Despine top, right, and bottom
 		ax.spines['top'].set_visible(False)
 		ax.spines['right'].set_visible(False)
