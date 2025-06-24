@@ -28,6 +28,7 @@ def parse_args():
 	parser.add_argument("--font_family", help = "Font family for labels")
 	parser.add_argument("--nolabel", action = "store_true", help = "Do not add sample labels and PSI values to the plot")
 	parser.add_argument("--nojunc", action = "store_true", help = "Do not plot junction arcs and junction read counts to the plot")
+	parser.add_argument("--minimum_junc_reads", default = 1, type = int, help = "Minimum number of reads to plot a junction arc. Default: %(default)s")
 	parser.add_argument("--dpi", default = 300, type = int, help = "DPI of the output figure. Default: %(default)s")
 	parser.add_argument("-v", "--verbose", action = "store_true", help = "Increase verbosity")
 	args = parser.parse_args()
@@ -142,7 +143,8 @@ def main():
 		font_family = args.font_family if args.font_family else None,
 		dpi = args.dpi,
 		nolabel = args.nolabel,
-		nojunc = args.nojunc
+		nojunc = args.nojunc,
+		minimum_junc_reads = args.minimum_junc_reads
 	)
 
 	# Finish

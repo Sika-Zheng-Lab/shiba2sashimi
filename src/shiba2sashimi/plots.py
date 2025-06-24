@@ -22,7 +22,7 @@ def bezier_point(t, p0, p1, p2, p3):
 def sashimi(
 		coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, fig_width, chrom, start, end, output,
 		pos_id = None, coordinate = None, strand = None, gene_name = None, junction_direction_dict = None, psi_values_dict = None,
-		font_family = None, dpi = 300, nolabel = False, nojunc = False
+		font_family = None, dpi = 300, nolabel = False, nojunc = False, minimum_junc_reads = 1
 	):
 	"""
 	Create Sashimi plot.
@@ -104,13 +104,15 @@ def sashimi(
 		else:
 			region_junctions = junctions_dict[sample_name]
 			for junc_ID in region_junctions:
+				# Get number of reads
+				junc_reads = region_junctions[junc_ID]
+				if junc_reads < minimum_junc_reads:
+					continue  # Skip junctions with fewer reads than the minimum
 				# Get direction of junction
 				direction = junction_direction_dict[junc_ID] if junction_direction_dict else "up"
 				# Get junction coordinates
 				junc_start = int(junc_ID.split(":")[1].split("-")[0]) - 1 # 0-based
 				junc_end = int(junc_ID.split(":")[1].split("-")[1])
-				# Get number of reads
-				junc_reads = region_junctions[junc_ID]
 				# Ignore if junction is out of range
 				if not (start < junc_start < end and start < junc_end < end):
 					continue
