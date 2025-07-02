@@ -109,16 +109,20 @@ def main():
 		elif args.samples:
 			if sample not in args.samples.split(","):
 				continue
-		logger.info(f"Calculating coverage for {sample}")
+		logger.info(f"{sample}...")
 		window_size = args.smoothing_window_size if args.smoothing_window_size % 2 == 1 else args.smoothing_window_size + 1
 		coverage = bams.get_coverage(info["bam"], chrom, start, end, window_size)
 		coverage_dict[sample] = coverage
 
 	# Get information of target junctions
-	logger.info("Extracting junctions in the target region")
-	logger.debug(f"Target region: {chrom}:{start}-{end}")
-	junctions_dict = junc.extract_junctions_in_region(args.shiba, chrom, start, end, junction_list)
-	logger.debug(f"Junctions in the target region: {junctions_dict}")
+	if args.nojunc:
+		logger.debug("No junctions will be plotted")
+		junctions_dict = {}
+	else:
+		logger.info("Extracting junctions in the target region")
+		logger.debug(f"Target region: {chrom}:{start}-{end}")
+		junctions_dict = junc.extract_junctions_in_region(args.shiba, chrom, start, end, junction_list)
+		logger.debug(f"Junctions in the target region: {junctions_dict}")
 
 	# Create Sashimi plot
 	logger.info("Creating Sashimi plot")

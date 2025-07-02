@@ -75,8 +75,9 @@ def sashimi(
 		logger.error("Number of colors does not match number of groups")
 		sys.exit(1)
 	# Plot coverage for each sample
-	junc_reads_max = max([max([junc_reads for junc_ID, junc_reads in region_junctions.items()]) for region_junctions in junctions_dict.values()])
-	junc_reads_min = min([min([junc_reads for junc_ID, junc_reads in region_junctions.items()]) for region_junctions in junctions_dict.values()])
+	if nojunc == False:
+		junc_reads_max = max([max([junc_reads for junc_ID, junc_reads in region_junctions.items()]) for region_junctions in junctions_dict.values()])
+		junc_reads_min = min([min([junc_reads for junc_ID, junc_reads in region_junctions.items()]) for region_junctions in junctions_dict.values()])
 	for i, sample_name in enumerate(sample_order):
 		ax = fig.add_subplot(gs[i, 0])
 		cov = coverage_dict[sample_name]
@@ -89,6 +90,8 @@ def sashimi(
 		if nolabel:
 			logger.debug(f"Sample {sample_name} is not labeled")
 		else:
+			# Add group label at the top right corner
+			ax.text(0.99, 0.85, group, transform=ax.transAxes, fontsize=8, color=color, ha='right', va='top')
 			if psi_values_dict:
 				try:
 					psi = psi_values_dict[sample_name]
