@@ -93,10 +93,17 @@ def posid2int(positional_id, shiba_path, extend_up, extend_down) -> tuple:
 			end = int(psi_file_col_dict[intron_keys[1]].split(":")[1].split("-")[1]) + extend_up
 		else:
 			intron = psi_file_col_dict[intron_keys]
-			if event_type == "MSE":
-				intron = intron.split(";")[-1]
-			start = int(intron.split(":")[1].split("-")[0]) - extend_down
-			end = int(intron.split(":")[1].split("-")[1]) + extend_up
+			if event_type == "AFE":
+				start = int(intron.split(";")[0].split(":")[1].split("-")[0]) - extend_up if strand == "+" else int(intron.split(";")[-1].split(":")[1].split("-")[0]) - extend_down
+				end = int(intron.split(";")[-1].split(":")[1].split("-")[1]) + extend_down if strand == "+" else int(intron.split(";")[0].split(":")[1].split("-")[1]) + extend_up
+			elif event_type == "ALE":
+				start = int(intron.split(";")[-1].split(":")[1].split("-")[0]) - extend_up if strand == "+" else int(intron.split(";")[0].split(":")[1].split("-")[0]) - extend_down
+				end = int(intron.split(";")[0].split(":")[1].split("-")[1]) + extend_down if strand == "+" else int(intron.split(";")[-1].split(":")[1].split("-")[1]) + extend_up
+			else:
+				if event_type == "MSE":
+					intron = intron.split(";")[-1]
+				start = int(intron.split(":")[1].split("-")[0]) - extend_up if strand == "+" else int(intron.split(":")[1].split("-")[0]) - extend_down
+				end = int(intron.split(":")[1].split("-")[1]) + extend_down if strand == "+" else int(intron.split(":")[1].split("-")[1]) + extend_up
 		if start < 0:
 			start = 0
 	else:
@@ -133,6 +140,7 @@ def posid2int(positional_id, shiba_path, extend_up, extend_down) -> tuple:
 	else:
 		for direction in ["up", "down"]:
 			for key in junction_keys[direction]:
-				junction_list += [psi_file_col_dict[key]]
-				junction_direction_dict[psi_file_col_dict[key]] = direction
+				for junction in psi_file_col_dict[key].split(";"):
+					junction_list += [junction]
+					junction_direction_dict[junction] = direction
 	return chrom, start, end, strand, gene_name, junction_list, junction_direction_dict
