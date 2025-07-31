@@ -52,6 +52,14 @@ def sashimi(
 			if samples:
 				sample_group_order = sorted(sample_group_order, key=samples.split(",").index)
 			sample_order += sample_group_order
+	elif samples:
+		sample_order = samples.split(",")
+		groups_list = []
+		for sample in sample_order:
+			if sample in experiment_dict:
+				group = experiment_dict[sample]["group"]
+				if group not in groups_list:
+					groups_list.append(group)
 	else:
 		groups_list = []
 		seen = set()
@@ -64,6 +72,8 @@ def sashimi(
 			sample_order = samples.split(",")
 		else:
 			sample_order = list(experiment_dict.keys())
+	logger.debug(f'sample_order: {sample_order}')
+	logger.debug(f'groups_list: {groups_list}')
 	# Set colors for each group
 	colors_list = colors.split(",") if colors else ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99", "#b15928"]
 	if len(colors_list) < len(groups_list):
@@ -91,7 +101,7 @@ def sashimi(
 			logger.debug(f"Sample {sample_name} is not labeled")
 		else:
 			# Add group label at the top right corner
-			ax.text(0.99, 0.85, group, transform=ax.transAxes, fontsize=8, color=color, ha='right', va='top')
+			# ax.text(0.99, 0.85, group, transform=ax.transAxes, fontsize=8, color=color, ha='right', va='top')
 			if psi_values_dict:
 				try:
 					psi = psi_values_dict[sample_name]
