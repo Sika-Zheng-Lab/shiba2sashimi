@@ -6,7 +6,7 @@ from . import tables, bams, plots, junc, utils
 # Configure logger
 logger = logging.getLogger(__name__)
 # Set version
-VERSION = "v0.1.6"
+VERSION = "v0.1.7"
 
 def parse_args():
 	parser = argparse.ArgumentParser(
@@ -28,6 +28,7 @@ def parse_args():
 	parser.add_argument("--font_family", help = "Font family for labels")
 	parser.add_argument("--nolabel", action = "store_true", help = "Do not add sample labels and PSI values to the plot")
 	parser.add_argument("--nojunc", action = "store_true", help = "Do not plot junction arcs and junction read counts to the plot")
+	parser.add_argument("--minimum_junc_reads", default = 1, type = int, help = "Minimum number of reads to plot a junction arc. Default: %(default)s")
 	parser.add_argument("--dpi", default = 300, type = int, help = "DPI of the output figure. Default: %(default)s")
 	parser.add_argument("-v", "--verbose", action = "store_true", help = "Increase verbosity")
 	args = parser.parse_args()
@@ -108,16 +109,20 @@ def main():
 		elif args.samples:
 			if sample not in args.samples.split(","):
 				continue
-		logger.info(f"Calculating coverage for {sample}")
+		logger.info(f"{sample}...")
 		window_size = args.smoothing_window_size if args.smoothing_window_size % 2 == 1 else args.smoothing_window_size + 1
 		coverage = bams.get_coverage(info["bam"], chrom, start, end, window_size)
 		coverage_dict[sample] = coverage
 
 	# Get information of target junctions
-	logger.info("Extracting junctions in the target region")
-	logger.debug(f"Target region: {chrom}:{start}-{end}")
-	junctions_dict = junc.extract_junctions_in_region(args.shiba, chrom, start, end, junction_list)
-	logger.debug(f"Junctions in the target region: {junctions_dict}")
+	if args.nojunc:
+		logger.debug("No junctions will be plotted")
+		junctions_dict = {}
+	else:
+		logger.info("Extracting junctions in the target region")
+		logger.debug(f"Target region: {chrom}:{start}-{end}")
+		junctions_dict = junc.extract_junctions_in_region(args.shiba, chrom, start, end, junction_list)
+		logger.debug(f"Junctions in the target region: {junctions_dict}")
 
 	# Create Sashimi plot
 	logger.info("Creating Sashimi plot")
@@ -142,7 +147,8 @@ def main():
 		font_family = args.font_family if args.font_family else None,
 		dpi = args.dpi,
 		nolabel = args.nolabel,
-		nojunc = args.nojunc
+		nojunc = args.nojunc,
+		minimum_junc_reads = args.minimum_junc_reads
 	)
 
 	# Finish

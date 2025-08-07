@@ -17,7 +17,7 @@ body:
     attributes:
         label: "🔖 shiba2sashimi Version"
         description: "Required: Specify the shiba2sashimi version you are using. You can find this information in the `shiba2sashimi -h` command."
-        placeholder: "e.g., v0.1.6"
+        placeholder: "e.g., v0.1.7"
     validations:
         required: true
 

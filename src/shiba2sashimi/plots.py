@@ -22,7 +22,7 @@ def bezier_point(t, p0, p1, p2, p3):
 def sashimi(
 		coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, fig_width, chrom, start, end, output,
 		pos_id = None, coordinate = None, strand = None, gene_name = None, junction_direction_dict = None, psi_values_dict = None,
-		font_family = None, dpi = 300, nolabel = False, nojunc = False
+		font_family = None, dpi = 300, nolabel = False, nojunc = False, minimum_junc_reads = 1
 	):
 	"""
 	Create Sashimi plot.
@@ -52,6 +52,14 @@ def sashimi(
 			if samples:
 				sample_group_order = sorted(sample_group_order, key=samples.split(",").index)
 			sample_order += sample_group_order
+	elif samples:
+		sample_order = samples.split(",")
+		groups_list = []
+		for sample in sample_order:
+			if sample in experiment_dict:
+				group = experiment_dict[sample]["group"]
+				if group not in groups_list:
+					groups_list.append(group)
 	else:
 		groups_list = []
 		seen = set()
@@ -64,6 +72,8 @@ def sashimi(
 			sample_order = samples.split(",")
 		else:
 			sample_order = list(experiment_dict.keys())
+	logger.debug(f'sample_order: {sample_order}')
+	logger.debug(f'groups_list: {groups_list}')
 	# Set colors for each group
 	colors_list = colors.split(",") if colors else ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99", "#b15928"]
 	if len(colors_list) < len(groups_list):
@@ -75,8 +85,9 @@ def sashimi(
 		logger.error("Number of colors does not match number of groups")
 		sys.exit(1)
 	# Plot coverage for each sample
-	junc_reads_max = max([max([junc_reads for junc_ID, junc_reads in region_junctions.items()]) for region_junctions in junctions_dict.values()])
-	junc_reads_min = min([min([junc_reads for junc_ID, junc_reads in region_junctions.items()]) for region_junctions in junctions_dict.values()])
+	if nojunc == False:
+		junc_reads_max = max([max([junc_reads for junc_ID, junc_reads in region_junctions.items()]) for region_junctions in junctions_dict.values()])
+		junc_reads_min = min([min([junc_reads for junc_ID, junc_reads in region_junctions.items()]) for region_junctions in junctions_dict.values()])
 	for i, sample_name in enumerate(sample_order):
 		ax = fig.add_subplot(gs[i, 0])
 		cov = coverage_dict[sample_name]
@@ -89,6 +100,8 @@ def sashimi(
 		if nolabel:
 			logger.debug(f"Sample {sample_name} is not labeled")
 		else:
+			# Add group label at the top right corner
+			# ax.text(0.99, 0.85, group, transform=ax.transAxes, fontsize=8, color=color, ha='right', va='top')
 			if psi_values_dict:
 				try:
 					psi = psi_values_dict[sample_name]
@@ -104,13 +117,15 @@ def sashimi(
 		else:
 			region_junctions = junctions_dict[sample_name]
 			for junc_ID in region_junctions:
+				# Get number of reads
+				junc_reads = region_junctions[junc_ID]
+				if junc_reads < minimum_junc_reads:
+					continue  # Skip junctions with fewer reads than the minimum
 				# Get direction of junction
 				direction = junction_direction_dict[junc_ID] if junction_direction_dict else "up"
 				# Get junction coordinates
 				junc_start = int(junc_ID.split(":")[1].split("-")[0]) - 1 # 0-based
 				junc_end = int(junc_ID.split(":")[1].split("-")[1])
-				# Get number of reads
-				junc_reads = region_junctions[junc_ID]
 				# Ignore if junction is out of range
 				if not (start < junc_start < end and start < junc_end < end):
 					continue

@@ -30,19 +30,19 @@ def posid2int(positional_id, shiba_path, extend_up, extend_down) -> tuple:
 	"""
 	# Parse event type from positional ID (i.e. SE@chr10@20327164-20327391@20326099-20328102)
 	event_type = positional_id.split("@")[0] # (SE, FIVE, THREE, MXE, RI, AFE, ALE, MSE)
-	# Get PSI file path
-	psi_file_path = os.path.join(shiba_path, "results", "splicing", f"PSI_{event_type}.txt")
-	# Check if PSI file exists
-	if not os.path.exists(psi_file_path):
-		logger.error(f"PSI file not found: {psi_file_path}")
+	# Get EVENT file path
+	event_file_path = os.path.join(shiba_path, "events", f"EVENT_{event_type}.txt")
+	# Check if EVENT file exists
+	if not os.path.exists(event_file_path):
+		logger.error(f"EVENT file not found: {event_file_path}")
 		logger.error("Please double check and provide a valid positional ID")
-		raise FileNotFoundError(f"PSI file not found: {psi_file_path}")
+		raise FileNotFoundError(f"EVENT file not found: {event_file_path}")
 		sys.exit(1)
-	# Read PSI file
-	psi_file_col_dict = {}
+	# Read EVENT file
+	event_file_col_dict = {}
 	header_dict = {}
-	with open(psi_file_path, "r") as psi_file:
-		for line in psi_file:
+	with open(event_file_path, "r") as event_file:
+		for line in event_file:
 			line = line.strip()
 			# Skip header
 			if line.startswith("event_id"):
@@ -57,24 +57,24 @@ def posid2int(positional_id, shiba_path, extend_up, extend_down) -> tuple:
 				columns = line.split("\t")
 				for col, i in header_dict.items():
 					try:
-						psi_file_col_dict[col] = columns[i]
+						event_file_col_dict[col] = columns[i]
 					except:
-						psi_file_col_dict[col] = None
+						event_file_col_dict[col] = None
 				break
-	# Check if positional ID exists in PSI file
-	if not psi_file_col_dict:
-		logger.error(f"Positional ID not found in PSI file: {positional_id}")
+	# Check if positional ID exists in EVENT file
+	if not event_file_col_dict:
+		logger.error(f"Positional ID not found in EVENT file: {positional_id}")
 		logger.error("Please double check and provide a valid positional ID")
-		raise ValueError(f"Positional ID not found in PSI file: {positional_id}")
+		raise ValueError(f"Positional ID not found in EVENT file: {positional_id}")
 		sys.exit(1)
 	# Get chromosome, start, and end from positional ID
 	chrom = positional_id.split("@")[1]
 	# Add "chr" prefix if not present
 	chrom = f"chr{chrom}" if not chrom.startswith("chr") and (chrom.isdigit() or chrom in ["X", "Y", "M", "MT"]) else chrom
-	# Get strand from PSI file
-	strand = psi_file_col_dict["strand"]
-	# Get gene name from PSI file
-	gene_name = psi_file_col_dict["gene_name"]
+	# Get strand from EVENT file
+	strand = event_file_col_dict["strand"]
+	# Get gene name from EVENT file
+	gene_name = event_file_col_dict["gene_name"]
 	# Extend upstream and downstream
 	intron_key_map = {
 		"SE": "intron_c",
@@ -89,14 +89,21 @@ def posid2int(positional_id, shiba_path, extend_up, extend_down) -> tuple:
 	if event_type in intron_key_map:
 		intron_keys = intron_key_map[event_type]
 		if isinstance(intron_keys, list):
-			start = int(psi_file_col_dict[intron_keys[0]].split(":")[1].split("-")[0]) - extend_down
-			end = int(psi_file_col_dict[intron_keys[1]].split(":")[1].split("-")[1]) + extend_up
+			start = int(event_file_col_dict[intron_keys[0]].split(":")[1].split("-")[0]) - extend_down
+			end = int(event_file_col_dict[intron_keys[1]].split(":")[1].split("-")[1]) + extend_up
 		else:
-			intron = psi_file_col_dict[intron_keys]
-			if event_type == "MSE":
-				intron = intron.split(";")[-1]
-			start = int(intron.split(":")[1].split("-")[0]) - extend_down
-			end = int(intron.split(":")[1].split("-")[1]) + extend_up
+			intron = event_file_col_dict[intron_keys]
+			if event_type == "AFE":
+				start = int(intron.split(";")[0].split(":")[1].split("-")[0]) - extend_up if strand == "+" else int(intron.split(";")[-1].split(":")[1].split("-")[0]) - extend_down
+				end = int(intron.split(";")[-1].split(":")[1].split("-")[1]) + extend_down if strand == "+" else int(intron.split(";")[0].split(":")[1].split("-")[1]) + extend_up
+			elif event_type == "ALE":
+				start = int(intron.split(";")[-1].split(":")[1].split("-")[0]) - extend_up if strand == "+" else int(intron.split(";")[0].split(":")[1].split("-")[0]) - extend_down
+				end = int(intron.split(";")[0].split(":")[1].split("-")[1]) + extend_down if strand == "+" else int(intron.split(";")[-1].split(":")[1].split("-")[1]) + extend_up
+			else:
+				if event_type == "MSE":
+					intron = intron.split(";")[-1]
+				start = int(intron.split(":")[1].split("-")[0]) - extend_up if strand == "+" else int(intron.split(":")[1].split("-")[0]) - extend_down
+				end = int(intron.split(":")[1].split("-")[1]) + extend_down if strand == "+" else int(intron.split(":")[1].split("-")[1]) + extend_up
 		if start < 0:
 			start = 0
 	else:
@@ -120,19 +127,20 @@ def posid2int(positional_id, shiba_path, extend_up, extend_down) -> tuple:
 	}
 	junction_keys = junction_key_map[event_type]
 	if event_type == "MSE":
-		for i, j in enumerate(psi_file_col_dict[junction_keys].split(";")):
-			if i == len(psi_file_col_dict[junction_keys].split(";")) - 1:
+		for i, j in enumerate(event_file_col_dict[junction_keys].split(";")):
+			if i == len(event_file_col_dict[junction_keys].split(";")) - 1:
 				junction_list += [j]
 				junction_direction_dict[j] = "up"
 			else:
 				junction_list += [j]
 				junction_direction_dict[j] = "down"
 	elif event_type == "RI":
-		junction_list += [psi_file_col_dict[junction_keys]]
-		junction_direction_dict[psi_file_col_dict[junction_keys]] = "up"
+		junction_list += [event_file_col_dict[junction_keys]]
+		junction_direction_dict[event_file_col_dict[junction_keys]] = "up"
 	else:
 		for direction in ["up", "down"]:
 			for key in junction_keys[direction]:
-				junction_list += [psi_file_col_dict[key]]
-				junction_direction_dict[psi_file_col_dict[key]] = direction
+				for junction in event_file_col_dict[key].split(";"):
+					junction_list += [junction]
+					junction_direction_dict[junction] = direction
 	return chrom, start, end, strand, gene_name, junction_list, junction_direction_dict
