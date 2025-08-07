@@ -6,7 +6,7 @@ from . import tables, bams, plots, junc, utils
 # Configure logger
 logger = logging.getLogger(__name__)
 # Set version
-VERSION = "v0.1.6"
+VERSION = "v0.1.7"
 
 def parse_args():
 	parser = argparse.ArgumentParser(
