@@ -2,11 +2,15 @@
 
 All notable changes to this shiba2sashimi project will be documented in this file.
 
-## [v0.1.7] - 2025-??-??
+## [v0.1.7] - 2025-08-06
 
 ### Added
 
 - Added `--minimum_junc_reads` option to allow users to specify the minimum number of reads required to draw a junction arc.
+
+### Changed
+
+- Changed internal logic to handle coordinates more flexibly to support future releases of Shiba.
 
 ## [v0.1.6] - 2025-06-20
 
