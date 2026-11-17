@@ -1,5 +1,7 @@
 # Example gallery
 
+The Control and Upf2_cKO bulk RNA-seq data used in this gallery were published in [this Cell Reports study](https://www.cell.com/cell-reports/fulltext/S2211-1247%2826%2900105-1).
+
 These examples use bulk RNA-seq results produced with SnakeShiba v0.8.0 and the assembled GTF based on mouse GRCm38 / Ensembl release 102. They demonstrate legacy-output compatibility; they are not a rerun with Shiba v1.0.0.
 
 Each event has an individual-sample plot containing all eight samples (Ctrl_1–Ctrl_4 and KO_1–KO_4) and a group-average plot containing Control and Upf2_cKO (four samples each). PDF files are vector outputs with editable text; PNG previews are 300 dpi.

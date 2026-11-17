@@ -172,6 +172,8 @@ python -m pytest --cov=shiba2sashimi --cov-report=term-missing
 
 The [example gallery](https://github.com/Sika-Zheng-Lab/shiba2sashimi/tree/develop/img/examples)
 contains all eight event types from Control/Upf2_cKO bulk RNA-seq results, with
-sample and group plots. Example-generation scripts and source BAMs remain local
+sample and group plots. The RNA-seq data were published in
+[this Cell Reports study](https://www.cell.com/cell-reports/fulltext/S2211-1247%2826%2900105-1).
+Example-generation scripts and source BAMs remain local
 and are not distributed. Automated tests generate their own synthetic data and
 do not require samtools, Shiba/Tosa installations, or external sequencing datasets.
