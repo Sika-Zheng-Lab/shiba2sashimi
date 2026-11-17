@@ -27,8 +27,6 @@ Events were selected for a clear visual difference between groups, using finite 
 
 Read depth and junction counts are raw, without library-size normalization or smoothing. Group tracks show arithmetic means across all four replicates, including zeros. Tracks within each figure share a depth scale, and the sample and group plots use the same genomic window. Axis limits can differ between those two plots because averaging changes the maximum depth. PSI definitions are those of the original run, including its event and strand conventions.
 
-The RI example additionally favors uniform coverage across the retained intron. For the selected Arhgef2 event, all 215 intronic bases (chr3:88633042–88633257, 0-based half-open) have nonzero coverage in every sample. The per-sample coefficient of variation of raw base-level intronic depth (population standard deviation / mean) ranges from 0.066 to 0.126 across the eight samples.
-
 The lower panel shows two representative transcripts from the assembled GTF, matched to the exon and junction structures of the alternative event paths. Reference transcript IDs are preferred when available; MSTRG IDs identify assembled transcripts. Only the displayed genomic window is shown. Red marks the target event, and arrows indicate strand direction. These models illustrate structure, not transcript abundance or the complete set of annotated isoforms.
 
 The source BAMs and example-generation scripts are kept locally and are not distributed in this repository.
