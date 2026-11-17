@@ -47,6 +47,13 @@ def _format_count(count):
 
 
 def _draw_models(ax, models, features, start, end):
+    # Use one coordinate grid across transcripts, with 24 pt spacing on the page.
+    # Intron length changes the number of arrows, not their density.
+    width_points = ax.get_position().width * ax.figure.get_figwidth() * 72
+    units_per_point = (end - start) / width_points
+    spacing = 24 * units_per_point
+    clearance = 3 * units_per_point
+    arrow_grid = np.arange(start + spacing / 2, end, spacing)
     for i, model in enumerate(models):
         y = len(models) - i - 1
         ax.text(0, y + .28, model["name"], transform=ax.get_yaxis_transform(), fontsize=7, va="bottom")
@@ -57,7 +64,8 @@ def _draw_models(ax, models, features, start, end):
             ax.plot([left, right], [y, y], lw=.7, color="#767676")
             if model["strand"] in ("+", "-"):
                 marker = ">" if model["strand"] == "+" else "<"
-                positions = np.linspace(left, right, 5)[1:-1]
+                positions = arrow_grid[(arrow_grid > left + clearance)
+                                       & (arrow_grid < right - clearance)]
                 ax.plot(positions, [y]*len(positions), linestyle="none", marker=marker,
                         markersize=2.5, color="#767676")
         for left, right in model["exons"]:

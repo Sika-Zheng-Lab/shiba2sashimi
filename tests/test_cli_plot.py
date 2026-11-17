@@ -52,6 +52,25 @@ def test_empty_coverage_and_junctions(tmp_path):
     assert not plt.get_fignums()
 
 
+@pytest.mark.parametrize("width", [5, 9])
+def test_transcript_arrows_have_uniform_page_spacing(width):
+    fig, ax = plt.subplots(figsize=(width, 3))
+    models = [{"name": strand, "strand": strand, "exons": [],
+               "introns": [(0, 300), (400, 1000)]} for strand in ("+", "-")]
+    try:
+        plots._draw_models(ax, models, [], 0, 1000)
+        fig.canvas.draw()
+        arrows = [line for line in ax.lines if line.get_marker() in (">", "<")]
+        for line in arrows:
+            points = ax.transData.transform(line.get_xydata())[:, 0] * 72 / fig.dpi
+            np.testing.assert_allclose(np.diff(points), 24)
+        # Opposite strands share the same grid; only arrow orientation changes.
+        np.testing.assert_array_equal(arrows[0].get_xdata(), arrows[2].get_xdata())
+        np.testing.assert_array_equal(arrows[1].get_xdata(), arrows[3].get_xdata())
+    finally:
+        plt.close(fig)
+
+
 def test_sample_selection_and_no_annotations(dataset):
     figure = main.run(main.parse_args(arguments(dataset) + ["--samples", "sample3", "--no-transcripts", "--nolabel", "--nojunc"]))
     assert len(figure.axes) == 2

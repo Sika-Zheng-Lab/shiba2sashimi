@@ -34,6 +34,8 @@ All notable changes to this shiba2sashimi project will be documented in this fil
 
 ### Changed
 
+- Space transcript strand arrows uniformly on a shared coordinate grid (24 pt
+  on the page), with clearance from exon boundaries.
 - Remove the separate target-event label and bar above transcript models; retain
   event highlighting within the transcript structures.
 - Use fixed-point count/depth labels, retaining up to three decimal places for
