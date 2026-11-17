@@ -15,7 +15,7 @@ All notable changes to this shiba2sashimi project will be documented in this fil
   `--max-transcripts`, and `--no-transcripts` options. Event-local structures are
   used when no matching GTF models are available, without inventing exon boundaries.
 - Automated unit and CLI integration tests using generated indexed BAM files;
-  GitHub Actions for Python 3.9/3.12; real-data Nov24 examples for all eight
+  GitHub Actions for Python 3.9/3.12; real-data examples for all eight
   event types, each with individual-sample and group-mean plots.
 
 ### Fixed

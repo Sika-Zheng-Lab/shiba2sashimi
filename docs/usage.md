@@ -170,7 +170,7 @@ python -m pip install -e '.[test]'
 python -m pytest --cov=shiba2sashimi --cov-report=term-missing
 ```
 
-The [Nov24 example gallery](https://github.com/Sika-Zheng-Lab/shiba2sashimi/tree/develop/img/examples)
+The [example gallery](https://github.com/Sika-Zheng-Lab/shiba2sashimi/tree/develop/img/examples)
 contains all eight event types from Control/Upf2_cKO bulk RNA-seq results, with
 sample and group plots. Example-generation scripts and source BAMs remain local
 and are not distributed. Automated tests generate their own synthetic data and

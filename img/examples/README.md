@@ -1,6 +1,6 @@
-# Examples from Upf2_paper/Nov24
+# Example gallery
 
-These examples use the original Nov24 bulk RNA-seq results, produced with SnakeShiba v0.8.0, and the assembled GTF based on mouse GRCm38 / Ensembl release 102. They demonstrate legacy-output compatibility; they are not a rerun with Shiba v1.0.0.
+These examples use bulk RNA-seq results produced with SnakeShiba v0.8.0 and the assembled GTF based on mouse GRCm38 / Ensembl release 102. They demonstrate legacy-output compatibility; they are not a rerun with Shiba v1.0.0.
 
 Each event has an individual-sample plot containing all eight samples (Ctrl_1–Ctrl_4 and KO_1–KO_4) and a group-average plot containing Control and Upf2_cKO (four samples each). PDF files are vector outputs with editable text; PNG previews are 300 dpi.
 

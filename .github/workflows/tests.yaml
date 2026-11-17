@@ -24,4 +24,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: python -m pip install -e '.[test]'
-      - run: python -m pytest --cov=shiba2sashimi --cov-report=term-missing
+      - run: python -m pytest --cov=shiba2sashimi --cov-report=term-missing --cov-report=xml:coverage.xml
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v7
+        with:
+          files: ./coverage.xml
+          disable_search: true
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+          name: python-${{ matrix.python-version }}
