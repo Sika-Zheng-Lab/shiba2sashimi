@@ -6,3 +6,12 @@ build/
 .pypirc
 dist/
 recipes/
+.venv/
+.pytest_cache/
+.coverage
+htmlcov/
+# Local data, caches, and example-generation scripts (not distributed).
+artifacts/
+
+# Large per-event vector exports remain local; PDF/PNG examples are distributed.
+/img/examples/*/*.svg

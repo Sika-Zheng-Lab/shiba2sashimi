@@ -1,202 +1,201 @@
-import sys
-import os
-import numpy as np
+"""Sashimi rendering with aligned transcript structures."""
+from contextlib import contextmanager
 import logging
-# Configure logging
-logger = logging.getLogger(__name__)
-import matplotlib
+import textwrap
+import numpy as np
+import matplotlib as mpl
 import matplotlib.pyplot as plt
-from matplotlib.path import Path
-from matplotlib.patches import PathPatch
-from matplotlib.ticker import MaxNLocator, ScalarFormatter
 from matplotlib import font_manager
+from matplotlib.path import Path
+from matplotlib.patches import PathPatch, Rectangle
+from matplotlib.ticker import FuncFormatter, MaxNLocator, ScalarFormatter
+
+from . import bams, tracks
+from .transcripts import event_features
+from .utils import coord2int
+
+logger = logging.getLogger(__name__)
+PALETTE = ["#767676", "#3775A0", "#B56363", "#57917D", "#8A739C", "#B28D4C",
+           "#467D87", "#A57785", "#6C7B4D", "#716F9A", "#A16F48", "#4D4D4D"]
+EVENT_COLOR = "#B64342"
+
+
+@contextmanager
+def figure_style(font_family=None):
+    family = font_family or "Arial"
+    # Do not silently replace a requested publication font.
+    try:
+        font_manager.findfont(font_manager.FontProperties(family=family), fallback_to_default=False)
+    except ValueError:
+        raise ValueError(f"Font {family!r} is not installed. Install it or select an installed font with --font_family.") from None
+    with mpl.rc_context({"font.family": family, "font.size": 8, "axes.labelsize": 8,
+                         "xtick.labelsize": 7, "ytick.labelsize": 7,
+                         "axes.linewidth": .7, "xtick.major.width": .7, "ytick.major.width": .7,
+                         "xtick.direction": "out", "ytick.direction": "out",
+                         "svg.fonttype": "none", "pdf.fonttype": 42, "ps.fonttype": 42}):
+        yield
+
 
 def bezier_point(t, p0, p1, p2, p3):
-	return (
-		(1 - t)**3 * np.array(p0) +
-		3 * (1 - t)**2 * t * np.array(p1) +
-		3 * (1 - t) * t**2 * np.array(p2) +
-		t**3 * np.array(p3)
-	)
+    return ((1-t)**3 * np.array(p0) + 3*(1-t)**2*t * np.array(p1)
+            + 3*(1-t)*t**2 * np.array(p2) + t**3 * np.array(p3))
 
-def sashimi(
-		coverage_dict, junctions_dict, experiment_dict, samples, groups, colors, fig_width, chrom, start, end, output,
-		pos_id = None, coordinate = None, strand = None, gene_name = None, junction_direction_dict = None, psi_values_dict = None,
-		font_family = None, dpi = 300, nolabel = False, nojunc = False, minimum_junc_reads = 1
-	):
-	"""
-	Create Sashimi plot.
-	"""
-	# Make sure that fonts can be found in a Docker/Singularity container
-	font_dir = '/usr/share/fonts/truetype/msttcorefonts/'
-	if os.path.exists(font_dir):
-		for font_file in os.listdir(font_dir):
-			if font_file.endswith('.ttf'):
-				font_manager.fontManager.addfont(os.path.join(font_dir, font_file))
-	# Set font family
-	if font_family:
-		matplotlib.rcParams["font.family"] = font_family
-	chrom = f"chr{chrom}" if not chrom.startswith("chr") and (chrom.isdigit() or chrom in ["X", "Y", "M", "MT"]) else chrom
-	# Set figure size
-	n_samples = len(coverage_dict)
-	fig_height = 1 * n_samples
-	fig = plt.figure(figsize=(fig_width, fig_height))
-	# Subplots for coverage
-	gs = fig.add_gridspec(n_samples + 1, 1, hspace=1.0, height_ratios=[1] * n_samples + [0.05])
-	# Set sample order
-	sample_order = []
-	if groups:
-		groups_list = groups.split(",")
-		for group in groups_list:
-			sample_group_order = [sample for sample, info in experiment_dict.items() if info["group"] == group]
-			if samples:
-				sample_group_order = sorted(sample_group_order, key=samples.split(",").index)
-			sample_order += sample_group_order
-	elif samples:
-		sample_order = samples.split(",")
-		groups_list = []
-		for sample in sample_order:
-			if sample in experiment_dict:
-				group = experiment_dict[sample]["group"]
-				if group not in groups_list:
-					groups_list.append(group)
-	else:
-		groups_list = []
-		seen = set()
-		for info in experiment_dict.values():
-			group = info["group"]
-			if group not in seen:
-				groups_list.append(group)
-				seen.add(group)
-		if samples:
-			sample_order = samples.split(",")
-		else:
-			sample_order = list(experiment_dict.keys())
-	logger.debug(f'sample_order: {sample_order}')
-	logger.debug(f'groups_list: {groups_list}')
-	# Set colors for each group
-	colors_list = colors.split(",") if colors else ["#a6cee3", "#1f78b4", "#b2df8a", "#33a02c", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#cab2d6", "#6a3d9a", "#ffff99", "#b15928"]
-	if len(colors_list) < len(groups_list):
-		logger.error("Number of colors is less than number of groups")
-		sys.exit(1)
-	try:
-		color_dict = {group: color for group, color in zip(groups_list, colors_list)}
-	except ValueError:
-		logger.error("Number of colors does not match number of groups")
-		sys.exit(1)
-	# Plot coverage for each sample
-	if nojunc == False:
-		junc_reads_max = max([max([junc_reads for junc_ID, junc_reads in region_junctions.items()]) for region_junctions in junctions_dict.values()])
-		junc_reads_min = min([min([junc_reads for junc_ID, junc_reads in region_junctions.items()]) for region_junctions in junctions_dict.values()])
-	for i, sample_name in enumerate(sample_order):
-		ax = fig.add_subplot(gs[i, 0])
-		cov = coverage_dict[sample_name]
-		cov_max = max(cov)
-		x_positions = range(start, end)
-		group = experiment_dict[sample_name]["group"]
-		color = color_dict[group]
-		ax.fill_between(x_positions, cov, step="pre", color=color, alpha=0.8)
-		# Add sample name and PSI value
-		if nolabel:
-			logger.debug(f"Sample {sample_name} is not labeled")
-		else:
-			# Add group label at the top right corner
-			# ax.text(0.99, 0.85, group, transform=ax.transAxes, fontsize=8, color=color, ha='right', va='top')
-			if psi_values_dict:
-				try:
-					psi = psi_values_dict[sample_name]
-					ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi:.2f})",transform=ax.transAxes, fontsize=8, color="black")
-				except:
-					psi = "NA"
-					ax.text(0.01, 0.85, f"{sample_name} (PSI = {psi})", transform=ax.transAxes, fontsize=8, color="black")
-			else:
-				ax.text(0.01, 0.85, f"{sample_name}", transform=ax.transAxes, fontsize=8, color="black")
-		# Plot junctions
-		if nojunc:
-			logger.debug(f"No junctions are plotted for sample {sample_name}")
-		else:
-			region_junctions = junctions_dict[sample_name]
-			for junc_ID in region_junctions:
-				# Get number of reads
-				junc_reads = region_junctions[junc_ID]
-				if junc_reads < minimum_junc_reads:
-					continue  # Skip junctions with fewer reads than the minimum
-				# Get direction of junction
-				direction = junction_direction_dict[junc_ID] if junction_direction_dict else "up"
-				# Get junction coordinates
-				junc_start = int(junc_ID.split(":")[1].split("-")[0]) - 1 # 0-based
-				junc_end = int(junc_ID.split(":")[1].split("-")[1])
-				# Ignore if junction is out of range
-				if not (start < junc_start < end and start < junc_end < end):
-					continue
-				# Draw arc
-				(x1, y1) = (junc_start, cov[junc_start - start]) if direction == "up" else (junc_start, 0)
-				(x2, y2) = (junc_end, cov[junc_end - start]) if direction == "up" else (junc_end, 0)
-				# Calculate control point for quadratic Bezier curve
-				arc_height = cov_max * 0.5
-				ctrl1 = (x1, y1 + arc_height) if direction == "up" else (x1, y1 - arc_height)
-				ctrl2 = (x2, y2 + arc_height) if direction == "up" else (x2, y2 - arc_height)
-				verts = [ (x1, y1), ctrl1, ctrl2, (x2, y2) ]
-				codes = [ Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4 ]
-				# Set linewidth according to the number of reads
-				linewidth_factor = (1.5 - 0.5) / (junc_reads_max - junc_reads_min) if junc_reads_max != junc_reads_min else 1  # Scale linewidth from 0.5 to 1.5
-				arc_linewidth = 0.5 + (junc_reads - junc_reads_min) * linewidth_factor
-				if junc_reads == 0:
-					arc_linewidth = 0.25
-				# Create a Bezier curve patch
-				path = Path(verts, codes)
-				bezier = PathPatch(path, linewidth=arc_linewidth, edgecolor=color, facecolor='none', clip_on=False)
-				ax.add_patch(bezier)
-				# Calculate midpoint (to use as the center of the arc)
-				bx, by = bezier_point(0.5, (x1, y1), ctrl1, ctrl2, (x2, y2))
-				# Add junc_reads as text on the arc
-				ax.text(
-					bx, by, str(junc_reads),
-					fontsize=8, ha='center', va='center', color='black',
-					backgroundcolor='white', bbox=dict(facecolor='white', edgecolor='white', boxstyle='round,pad=0'),
-					clip_on=False  # Allow text to be drawn outside the axes
-				)
-		ax.set_xlim(start, end)
-		ax.set_ylim(bottom = 0, top = max(cov) * 1.4)
-		ax.set_ylabel("Coverage", fontsize=6)
-		ax.tick_params(axis='y', labelsize=6)
-		# Despine top, right, and bottom
-		ax.spines['top'].set_visible(False)
-		ax.spines['right'].set_visible(False)
-		ax.spines['bottom'].set_visible(False)
-		# Remove xticks for all samples
-		ax.set_xticks([])
-	# Create a separate x-axis at the bottom
-	ax_x = fig.add_subplot(gs[-1, 0])
-	ax_x.set_xlim(start, end)
-	ax_x.xaxis.set_major_locator(MaxNLocator(nbins=10, integer=True)) # Set number of ticks
-	# Disable scientific notation
-	formatter = ScalarFormatter(useOffset=False, useMathText=False)
-	formatter.set_scientific(False)
-	ax_x.xaxis.set_major_formatter(formatter)
-	ax_x.tick_params(axis='x', labelrotation=45, labelsize=6)
-	for label in ax_x.get_xticklabels():
-		label.set_ha('right')  # Set horizontal alignment to 'right'
-	ax_x.set_xlabel(f"Genomic coordinate ({chrom})", fontsize=10)
-	ax_x.spines['top'].set_visible(False)
-	ax_x.spines['right'].set_visible(False)
-	ax_x.spines['left'].set_visible(False)
-	ax_x.get_yaxis().set_visible(False)
-	# Put title on the top subplot
-	title = ""
-	if coordinate:
-		title += f"{chrom}:{start}-{end}"
-	if pos_id:
-		title += f"\n{pos_id}, {gene_name} ({strand})"
-	if title:
-		ax_top = fig.axes[0]
-		ax_top.annotate(
-			title,
-			xy=(0.5, 1.5),
-			xycoords='axes fraction',
-			ha='center',
-			va='bottom',
-			fontsize=12
-		)
-	# Save plot
-	plt.savefig(output, dpi=dpi, bbox_inches="tight")
+
+def _format_count(count):
+    """Fixed-point labels with up to three decimals, never scientific notation."""
+    return f"{count:.3f}".rstrip("0").rstrip(".")
+
+
+def _draw_models(ax, models, features, start, end):
+    for i, model in enumerate(models):
+        y = len(models) - i - 1
+        ax.text(0, y + .28, model["name"], transform=ax.get_yaxis_transform(), fontsize=7, va="bottom")
+        for left, right in model["introns"]:
+            left, right = max(start, left), min(end, right)
+            if left >= right:
+                continue
+            ax.plot([left, right], [y, y], lw=.7, color="#767676")
+            if model["strand"] in ("+", "-"):
+                marker = ">" if model["strand"] == "+" else "<"
+                positions = np.linspace(left, right, 5)[1:-1]
+                ax.plot(positions, [y]*len(positions), linestyle="none", marker=marker,
+                        markersize=2.5, color="#767676")
+        for left, right in model["exons"]:
+            left, right = max(start, left), min(end, right)
+            if left >= right:
+                continue
+            ax.add_patch(Rectangle((left, y-.12), right-left, .24, facecolor="#767676", linewidth=0))
+            for a, b in features:
+                a, b = max(a, left), min(b, right)
+                if a < b:
+                    ax.add_patch(Rectangle((a, y-.12), b-a, .24, facecolor=EVENT_COLOR, linewidth=0))
+    ax.set_ylim(-.5, len(models) - .15)
+    ax.set_xlim(start, end)
+    ax.set_axis_off()
+
+
+def sashimi(coverage_dict, junctions_dict, experiment_dict, samples, groups, colors,
+            fig_width, chrom, start, end, output, pos_id=None, coordinate=None,
+            strand=None, gene_name=None, junction_direction_dict=None, psi_values_dict=None,
+            font_family=None, dpi=300, nolabel=False, nojunc=False, minimum_junc_reads=1,
+            group_average=False, smoothing_window_size=1, transcript_models=None, event=None):
+    """Render sample tracks or means; return the closed figure for inspection/tests."""
+    order = tracks.select_samples(experiment_dict, samples, groups)
+    data = tracks.build_tracks(coverage_dict, junctions_dict, experiment_dict, order,
+                               psi_values_dict, group_average)
+    if not data:
+        raise ValueError("No samples selected")
+    group_order = list(dict.fromkeys(track["group"] for track in data))
+    palette = [c.strip() for c in colors.split(",")] if colors else PALETTE
+    if len(palette) < len(group_order):
+        raise ValueError("Number of colors is less than number of groups")
+    color_map = dict(zip(group_order, palette))
+    for color in color_map.values():
+        if not mpl.colors.is_color_like(color):
+            raise ValueError(f"Invalid color: {color}")
+    for track in data:
+        track["coverage"] = bams.median_filter(track["coverage"], smoothing_window_size)
+        if len(track["coverage"]) != end-start:
+            raise ValueError("Coverage length does not match the plotting region")
+    models = transcript_models or []
+    features = event_features(event)
+    model_height = .34 * len(models) + .15 if models else 0
+    heights = [1.1]*len(data) + ([model_height] if model_height else []) + [.14]
+    with figure_style(font_family):
+        fig = plt.figure(figsize=(fig_width, sum(heights) + .8))
+        try:
+            grid = fig.add_gridspec(len(heights), 1, height_ratios=heights, hspace=.42)
+            all_counts = [count for track in data for j, count in track["junctions"].items()
+                          if count > 0 and count >= minimum_junc_reads
+                          and coord2int(j)[2] - coord2int(j)[1] > 1]
+            min_count, max_count = (min(all_counts), max(all_counts)) if all_counts else (0, 0)
+            # Shared scales allow direct comparison, including groups of unequal size.
+            scale = max(1., max(float(np.max(track["coverage"])) for track in data))
+            has_down = not nojunc and any(
+                (junction_direction_dict or {}).get(j) == "down" and c > 0 and c >= minimum_junc_reads
+                for track in data for j, c in track["junctions"].items())
+            boundary_positions = sorted({coord2int(j)[1]
+                for track in data for j, c in track["junctions"].items()
+                if not nojunc and c > 0 and c >= minimum_junc_reads
+                and coord2int(j)[2] - coord2int(j)[1] == 1
+                and start <= coord2int(j)[1] <= end})
+            # Place labels outward when a short retained intron brings them close.
+            boundary_alignment = dict.fromkeys(boundary_positions, "center")
+            if len(boundary_positions) == 2 and (boundary_positions[1]-boundary_positions[0])/(end-start) * fig_width < 1.2:
+                boundary_alignment = dict(zip(boundary_positions, ["right", "left"]))
+            for i, track in enumerate(data):
+                ax = fig.add_subplot(grid[i])
+                cov, color = track["coverage"], color_map[track["group"]]
+                # Base intervals are [x, x+1), matching GTF rectangles and junction boundaries.
+                ax.fill_between(np.arange(start, end+1), np.r_[cov, cov[-1]], step="post", color=color, lw=0)
+                if not nolabel:
+                    label = track["label"]
+                    if group_average:
+                        label += f" (n = {track['n']})"
+                    if track["has_psi"]:
+                        value = f"{track['psi']:.2f}%" if track["psi"] is not None else "NA"
+                        label += f"; {'mean ' if group_average else ''}PSI = {value}"
+                        if group_average:
+                            label += f" (n = {track['psi_n']})"
+                    ax.text(0, 1.02, label, transform=ax.transAxes, fontsize=8, va="bottom")
+                if not nojunc:
+                    for junction_id, count in track["junctions"].items():
+                        if count <= 0 or count < minimum_junc_reads:
+                            continue
+                        _, left, right = coord2int(junction_id)
+                        if right - left == 1:
+                            if left in boundary_alignment:
+                                y = -scale * .16
+                                align = boundary_alignment[left]
+                                ax.plot([left, left], [0, y], color=color, lw=.7, linestyle="--")
+                                ax.plot(left, y, marker="_", markersize=5, color=color)
+                                ax.annotate(f"EI: {_format_count(count)}", (left, y),
+                                            xytext=({"right": -3, "left": 3, "center": 0}[align], -3),
+                                            textcoords="offset points", ha=align, va="top", fontsize=7)
+                            continue
+                        # Shiba flanking exon bases -> zero-based splice boundaries.
+                        x1, x2 = left, right-1
+                        if not (start <= x1 < x2 <= end):
+                            continue
+                        direction = (junction_direction_dict or {}).get(junction_id, "up")
+                        y1 = cov[max(0, x1-start-1)] if direction == "up" else 0
+                        y2 = cov[min(len(cov)-1, x2-start)] if direction == "up" else 0
+                        offset = scale*.55 * (1 if direction == "up" else -1)
+                        points = [(x1, y1), (x1, y1+offset), (x2, y2+offset), (x2, y2)]
+                        width = .6 + (count-min_count)/(max_count-min_count) if max_count > min_count else 1.
+                        ax.add_patch(PathPatch(Path(points, [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4]),
+                                               lw=width, edgecolor=color, facecolor="none"))
+                        bx, by = bezier_point(.5, *points)
+                        label = _format_count(count)
+                        ax.text(bx, by, label, ha="center", va="center", fontsize=7,
+                                bbox={"facecolor": "white", "edgecolor": "none", "pad": .4})
+                ax.set(xlim=(start, end), ylim=(-scale*.65 if boundary_positions else -scale*.55 if has_down else 0, scale*1.65),
+                       ylabel="Mean depth" if group_average else "Read depth")
+                ax.set_yticks([0, scale])
+                ax.yaxis.set_major_formatter(FuncFormatter(lambda value, _: _format_count(value)))
+                ax.spines["left"].set_bounds(0, scale)
+                for side in ("top", "right", "bottom"):
+                    ax.spines[side].set_visible(False)
+                ax.set_xticks([])
+            if model_height:
+                _draw_models(fig.add_subplot(grid[-2]), models, features, start, end)
+            ax_x = fig.add_subplot(grid[-1])
+            ax_x.set_xlim(start, end)
+            ax_x.xaxis.set_major_locator(MaxNLocator(nbins=max(2, int(fig_width)), integer=True))
+            formatter = ScalarFormatter(useOffset=False)
+            formatter.set_scientific(False)
+            ax_x.xaxis.set_major_formatter(formatter)
+            ax_x.set_xlabel(f"Genomic coordinate ({chrom}; 0-based)")
+            ax_x.get_yaxis().set_visible(False)
+            for side in ("top", "right", "left"):
+                ax_x.spines[side].set_visible(False)
+            title = f"{gene_name or ''} ({strand}) | {pos_id}" if pos_id else f"{chrom}:{start}-{end}"
+            title = textwrap.fill(title, width=max(30, int(fig_width * 16)), break_long_words=True)
+            fig.suptitle(title, fontsize=8, y=.99)
+            title_inches = .22 + .14 * len(title.splitlines())
+            fig.subplots_adjust(top=1 - title_inches / fig.get_figheight(),
+                                bottom=.13 if sum(heights) < 3 else .08)
+            fig.savefig(output, dpi=dpi, bbox_inches="tight")
+        finally:
+            plt.close(fig)
+    return fig

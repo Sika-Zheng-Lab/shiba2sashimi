@@ -1,62 +1,37 @@
-import sys
-import os
-import logging
-# Configure logging
-logger = logging.getLogger(__name__)
-import pysam
+"""Coverage from indexed BAM files."""
 import numpy as np
+import pysam
+from .utils import same_chrom
+
 
 def median_filter(data, window_size):
-	"""
-	Apply a median filter to the data with the specified window size.
-	"""
-	filtered_data = np.zeros_like(data)
-	half_window = window_size // 2
-	for i in range(len(data)):
-		start = max(0, i - half_window)
-		end = min(len(data), i + half_window + 1)
-		filtered_data[i] = np.median(data[start:end])
-	return filtered_data
+    if window_size < 1 or window_size % 2 == 0:
+        raise ValueError("Smoothing window must be a positive odd integer")
+    data = np.asarray(data, dtype=float)
+    if window_size == 1:
+        return data.copy()
+    half = window_size // 2
+    return np.array([np.median(data[max(0, i-half):i+half+1]) for i in range(len(data))])
 
-def get_coverage(bam_path, chrom, start, end, window_size=21):
-	"""
-	Return coverage array of the specified region (chrom, start, end) using pysam.
-	"""
-	# Check if the BAM file and its index exist
-	if not os.path.exists(bam_path):
-		logger.error(f"BAM file not found: {bam_path}")
-		logger.error("Please double check and provide a valid BAM file")
-		raise FileNotFoundError(f"BAM file not found: {bam_path}")
-		sys.exit(1)
-	if not (os.path.exists(f"{bam_path}.bai") or os.path.exists(f"{bam_path}.csi")):
-		logger.error(f"BAM index not found: {bam_path}.bai or {bam_path}.csi")
-		logger.error("Please create index using samtools index")
-		raise FileNotFoundError(f"BAM index not found: {bam_path}.bai or {bam_path}.csi")
-		sys.exit(1)
-	# Initialize coverage array
-	arr_len = end - start
-	coverage = np.zeros(arr_len, dtype=int)
-	# Open BAM file with pysam.AlignmentFile
-	with pysam.AlignmentFile(bam_path, "rb") as bam:
-		# Get coverage using pileup
-		try:
-			count = bam.count_coverage(chrom, start, end)
-		except KeyError:
-			logger.debug(f"Chromosome {chrom} not found in BAM file")
-			# Remove "chr" prefix and try again
-			logger.debug(f"Trying without 'chr' prefix")
-			chrom = chrom.replace("chr", "")
-			count = bam.count_coverage(chrom, start, end)
-		except Exception as e:
-			logger.error(f"Failed to get coverage for {chrom}:{start}-{end}")
-			logger.error(f"Error: {e}")
-			sys.exit(1)
-		for i in range(arr_len):
-			total = 0
-			# Sum up coverage for each base
-			for j in range(4):
-				total += count[j][i]
-			coverage[i] = total
-	# Apply median filter for smooth coverage plot
-	coverage = median_filter(coverage, window_size)
-	return coverage
+
+def get_coverage(bam_path, chrom, start, end, window_size=1):
+    """Raw A/C/G/T depth with pysam's default quality/read filters.
+
+    Resolve exact chromosome names first, then an unambiguous chr alias. Let
+    htslib locate BAI/CSI indexes (including sample.bai for sample.bam).
+    """
+    if start < 0 or end <= start:
+        raise ValueError("Coverage region requires 0 <= start < end")
+    with pysam.AlignmentFile(bam_path, "rb") as bam:
+        if not bam.has_index():
+            raise FileNotFoundError(f"BAM index not found for {bam_path}; run samtools index")
+        if chrom not in bam.references:
+            candidates = [ref for ref in bam.references if same_chrom(ref, chrom)]
+            if len(candidates) != 1:
+                raise ValueError(f"Chromosome {chrom!r} not found unambiguously in {bam_path}")
+            chrom = candidates[0]
+        if end > bam.get_reference_length(chrom):
+            raise ValueError(f"Region end {end} exceeds chromosome length for {chrom} in {bam_path}")
+        counts = bam.count_coverage(chrom, start, end)
+        coverage = np.sum(np.asarray(counts), axis=0, dtype=float)
+    return median_filter(coverage, window_size)

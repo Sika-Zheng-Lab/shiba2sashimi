@@ -1,163 +1,115 @@
+"""Command-line entry point."""
 import argparse
-import sys
 import logging
-import time
-from . import tables, bams, plots, junc, utils
-# Configure logger
+from . import tables, bams, plots, junc, utils, tracks, transcripts
+
 logger = logging.getLogger(__name__)
-# Set version
-VERSION = "v0.1.7"
+VERSION = "v0.2.0"
 
-def parse_args():
-	parser = argparse.ArgumentParser(
-		description=f"shiba2sashimi {VERSION} - Create Sashimi plot from Shiba output"
-	)
 
-	parser.add_argument("-e", "--experiment", required = True, help = "Experiment table used for Shiba")
-	parser.add_argument("-s", "--shiba", required = True, help = "Shiba working directory")
-	parser.add_argument("-o", "--output", required = True, help = "Output file")
-	parser.add_argument("--id", required = False, help = "Positional ID (pos_id) of the event to plot")
-	parser.add_argument("-c", "--coordinate", required = False, help = "Coordinates of the region to plot")
-	parser.add_argument("--samples", required = False, help = "Samples to plot. e.g. sample1,sample2,sample3 Default: all samples in the experiment table")
-	parser.add_argument("--groups", required = False, help = "Groups to plot. e.g. group1,group2,group3 Default: all groups in the experiment table. Overrides --samples")
-	parser.add_argument("--colors", required = False, help = "Colors for each group. e.g. red,orange,blue")
-	parser.add_argument("--width", default = 8.0, type = float, help = "Width of the output figure. Default: %(default)s")
-	parser.add_argument("--extend_up", default = 500, type = int, help = "Extend the plot upstream. Only used when not providing coordinates. Default: %(default)s")
-	parser.add_argument("--extend_down", default = 500, type = int, help = "Extend the plot downstream. Only used when not providing coordinates. Default: %(default)s")
-	parser.add_argument("--smoothing_window_size", default = 21, type = int, help = "Window size for median filter to smooth coverage plot. Greater value gives smoother plot. Default: %(default)s")
-	parser.add_argument("--font_family", help = "Font family for labels")
-	parser.add_argument("--nolabel", action = "store_true", help = "Do not add sample labels and PSI values to the plot")
-	parser.add_argument("--nojunc", action = "store_true", help = "Do not plot junction arcs and junction read counts to the plot")
-	parser.add_argument("--minimum_junc_reads", default = 1, type = int, help = "Minimum number of reads to plot a junction arc. Default: %(default)s")
-	parser.add_argument("--dpi", default = 300, type = int, help = "DPI of the output figure. Default: %(default)s")
-	parser.add_argument("-v", "--verbose", action = "store_true", help = "Increase verbosity")
-	args = parser.parse_args()
-	return args
+def parse_args(argv=None):
+    parser = argparse.ArgumentParser(description=f"shiba2sashimi {VERSION} - Create Sashimi plots from Shiba output")
+    parser.add_argument("--version", action="version", version=VERSION)
+    parser.add_argument("-e", "--experiment", required=True, help="Shiba bulk experiment table (sample, bam, group; extra columns allowed)")
+    parser.add_argument("-s", "--shiba", required=True, help="Shiba working directory")
+    parser.add_argument("-o", "--output", required=True, help="Output file (PDF, SVG, PNG, etc.)")
+    parser.add_argument("--id", help="Positional ID (pos_id) of the event to plot")
+    parser.add_argument("-c", "--coordinate", help="Plot region: chr:start-end (0-based, end-exclusive); overrides the event window")
+    parser.add_argument("--samples", help="Comma-separated samples in display order; default: all")
+    parser.add_argument("--groups", help="Comma-separated groups in display order; overrides --samples; supports more than two groups")
+    parser.add_argument("--group-average", action="store_true", help="One mean track per group; PSI is the mean of nonmissing sample PSI")
+    parser.add_argument("--gtf", help="GTF or GTF.gz for transcript models; default: annotation/assembled_annotation.gtf, otherwise event-local structures")
+    parser.add_argument("--no-transcripts", action="store_true", help="Hide transcript structures")
+    parser.add_argument("--max-transcripts", type=int, default=20, help="Maximum GTF transcripts to show, prioritizing event junction matches (default: %(default)s)")
+    parser.add_argument("--colors", help="Comma-separated colors in selected group order")
+    parser.add_argument("--width", default=8, type=float, help="Figure width in inches (default: %(default)s)")
+    parser.add_argument("--extend_up", default=500, type=int, help="Extend event window upstream in transcript orientation (default: %(default)s)")
+    parser.add_argument("--extend_down", default=500, type=int, help="Extend event window downstream in transcript orientation (default: %(default)s)")
+    parser.add_argument("--smoothing_window_size", default=1, type=int, help="Median filter window, applied after averaging; 1 disables smoothing, even values round up (default: %(default)s)")
+    parser.add_argument("--font_family", default="Arial", help="Installed font family (default: %(default)s)")
+    parser.add_argument("--nolabel", action="store_true", help="Hide sample/group labels and PSI")
+    parser.add_argument("--nojunc", action="store_true", help="Hide junction arcs and counts, including RI boundaries")
+    parser.add_argument("--minimum_junc_reads", default=1, type=float, help="Minimum raw or group-mean count to show a junction or RI boundary (default: %(default)s)")
+    parser.add_argument("--dpi", default=300, type=int, help="Raster resolution (default: %(default)s)")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Increase verbosity")
+    args = parser.parse_args(argv)
+    if not (args.id or args.coordinate):
+        parser.error("provide --id or --coordinate")
+    for name in ("width", "dpi", "max_transcripts", "smoothing_window_size"):
+        value = getattr(args, name)
+        if value <= 0 or value == float("inf") or value != value:
+            parser.error(f"--{name.replace('_', '-')} must be positive and finite")
+    for name in ("extend_up", "extend_down", "minimum_junc_reads"):
+        value = getattr(args, name)
+        if value < 0 or value == float("inf") or value != value:
+            parser.error(f"--{name} must be nonnegative and finite")
+    return args
 
-def main():
 
-	# Get arguments
-	args = parse_args()
+def run(args):
+    experiment = tables.load_experiment_table(args.experiment)
+    order = tracks.select_samples(experiment, args.samples, args.groups)
+    if args.groups and args.samples:
+        logger.info("Both --samples and --groups are provided. Ignoring --samples")
+    event = utils.read_event(args.id, args.shiba) if args.id else None
+    psi = tables.get_psi_values(args.id, args.shiba) if event else None
+    if psi is not None:
+        missing = set(order) - set(psi)
+        if missing:
+            raise ValueError(f"Samples missing from PSI matrix: {', '.join(sorted(missing))}")
+    if args.coordinate:
+        chrom, start, end = utils.coord2int(args.coordinate)
+        if event:
+            event_chrom, event_start, event_end = utils.event_region(event, 0, 0)
+            if not utils.same_chrom(chrom, event_chrom) or end <= event_start or start >= event_end:
+                raise ValueError("--coordinate must overlap the selected event on the same chromosome")
+    else:
+        chrom, start, end = utils.event_region(event, args.extend_up, args.extend_down)
+    directions = utils.event_junctions(event) if event else None
+    count_ids = list(directions) + utils.event_boundaries(event) if event else None
+    junctions = {} if args.nojunc else junc.extract_junctions_in_region(
+        args.shiba, chrom, start, end, count_ids)
+    if not args.nojunc:
+        missing = set(order) - set(junctions)
+        if missing:
+            raise ValueError(f"Samples missing from junction table: {', '.join(sorted(missing))}")
+    models = [] if args.no_transcripts else transcripts.load_models(
+        args.shiba, chrom, start, end, event, args.gtf, args.max_transcripts)
+    coverage = {}
+    for sample in order:
+        logger.info("Calculating coverage: %s", sample)
+        coverage[sample] = bams.get_coverage(experiment[sample]["bam"], chrom, start, end)
+    window = args.smoothing_window_size
+    if window % 2 == 0:
+        window += 1
+        logger.info("Using odd smoothing window: %d", window)
+    if args.group_average:
+        logger.info("Group means: raw depth/counts over all selected replicates; PSI over valid sample values")
+    return plots.sashimi(
+        coverage, junctions, experiment, ",".join(order), args.groups, args.colors,
+        args.width, chrom, start, end, args.output, pos_id=args.id, coordinate=args.coordinate,
+        strand=event["strand"] if event else None,
+        gene_name=(event.get("gene_name") or event.get("gene_id")) if event else None,
+        junction_direction_dict=directions, psi_values_dict=psi, font_family=args.font_family,
+        dpi=args.dpi, nolabel=args.nolabel, nojunc=args.nojunc,
+        minimum_junc_reads=args.minimum_junc_reads, group_average=args.group_average,
+        smoothing_window_size=window, transcript_models=models,
+        event=event if not args.no_transcripts else None)
 
-	# Set up logging
-	logging.basicConfig(
-		format = "[%(asctime)s] %(levelname)7s %(message)s",
-		level = logging.DEBUG if args.verbose else logging.INFO
-	)
 
-	# Validate input and config
-	logger.info(f"Running shiba2sashimi ({VERSION})")
-	time.sleep(1)
-	logger.debug(f"Arguments: {args}")
+def main(argv=None):
+    args = parse_args(argv)
+    logging.basicConfig(format="[%(asctime)s] %(levelname)7s %(message)s",
+                        level=logging.DEBUG if args.verbose else logging.INFO)
+    logger.info("Running shiba2sashimi (%s)", VERSION)
+    try:
+        run(args)
+    except (OSError, ValueError, KeyError) as error:
+        logger.error("%s", error)
+        return 1
+    logger.info("Output file: %s", args.output)
+    return 0
 
-	# Load experiment table
-	logger.info(f"Loading experiment table from {args.experiment}")
-	experiment_dict = tables.load_experiment_table(args.experiment)
-	logger.debug(f"Experiment table: {experiment_dict}")
-
-	# Check if provided samples exist in the experiment table
-	if args.samples:
-		for sample in args.samples.split(","):
-			if sample not in experiment_dict:
-				logger.error(f"Sample not found in the experiment table: {sample}")
-				logger.error("Please double check and provide a valid sample")
-				sys.exit(1)
-	# Check if provided groups exist in the experiment table
-	if args.groups:
-		for group in args.groups.split(","):
-			if group not in set([info["group"] for info in experiment_dict.values()]):
-				logger.error(f"Group not found in the experiment table: {group}")
-				logger.error("Please double check and provide a valid group")
-				sys.exit(1)
-
-	# Get PSI values from Shiba output
-	if args.id:
-		logger.debug(f"Get PSI values for positional ID: {args.id}")
-		psi_values_dict = tables.get_psi_values(args.id, args.shiba)
-
-	# Get coordinates of the target region from positional ID or coordinate
-	if args.id:
-		logger.debug(f"Extracting coordinates from positional ID: {args.id}")
-		# Get coordinates from positional ID
-		chrom, start, end, strand, gene_name, junction_list, junction_direction_dict = utils.posid2int(args.id, args.shiba, args.extend_up, args.extend_down)
-		logger.debug(f"junction_list: {junction_list}")
-		if args.coordinate:
-			logger.debug(f"Using provided coordinate: {args.coordinate}")
-			# Get coordinates from provided coordinate
-			chrom, start, end = utils.coord2int(args.coordinate)
-	elif args.coordinate:
-		logger.debug(f"Using provided coordinate: {args.coordinate}")
-		# Get coordinates from provided coordinate
-		chrom, start, end = utils.coord2int(args.coordinate)
-		strand = None
-		gene_name = None
-		junction_list = None
-		junction_direction_dict = None
-	else:
-		logger.error("Please provide either positional ID or coordinate to define the target region")
-		sys.exit(1)
-
-	# Get coverage of the target region for each sample
-	logger.info("Calculating coverage for each sample")
-	coverage_dict = {}
-	if args.groups and args.samples:
-		logger.info("Both --samples and --groups are provided. Ignoring --samples")
-	for sample, info in experiment_dict.items():
-		if args.groups:
-			if info["group"] not in args.groups.split(","):
-				continue
-		elif args.samples:
-			if sample not in args.samples.split(","):
-				continue
-		logger.info(f"{sample}...")
-		window_size = args.smoothing_window_size if args.smoothing_window_size % 2 == 1 else args.smoothing_window_size + 1
-		coverage = bams.get_coverage(info["bam"], chrom, start, end, window_size)
-		coverage_dict[sample] = coverage
-
-	# Get information of target junctions
-	if args.nojunc:
-		logger.debug("No junctions will be plotted")
-		junctions_dict = {}
-	else:
-		logger.info("Extracting junctions in the target region")
-		logger.debug(f"Target region: {chrom}:{start}-{end}")
-		junctions_dict = junc.extract_junctions_in_region(args.shiba, chrom, start, end, junction_list)
-		logger.debug(f"Junctions in the target region: {junctions_dict}")
-
-	# Create Sashimi plot
-	logger.info("Creating Sashimi plot")
-	plots.sashimi(
-		coverage_dict = coverage_dict,
-		junctions_dict = junctions_dict,
-		experiment_dict = experiment_dict,
-		samples = args.samples if not args.groups else ",".join(coverage_dict.keys()),
-		groups = args.groups,
-		colors = args.colors,
-		fig_width = args.width,
-		chrom = chrom,
-		start = start,
-		end = end,
-		output = args.output,
-		pos_id = args.id if args.id else None,
-		coordinate = args.coordinate if args.coordinate else None,
-		strand = strand,
-		gene_name = gene_name,
-		junction_direction_dict = junction_direction_dict if args.id else None,
-		psi_values_dict = psi_values_dict if args.id else None,
-		font_family = args.font_family if args.font_family else None,
-		dpi = args.dpi,
-		nolabel = args.nolabel,
-		nojunc = args.nojunc,
-		minimum_junc_reads = args.minimum_junc_reads
-	)
-
-	# Finish
-	logger.info("shiba2sashimi finished successfully")
-	logger.info(f"Output file: {args.output}")
-
-	# Return
-	return 0
 
 if __name__ == "__main__":
-	main()
-
+    raise SystemExit(main())
