@@ -16,7 +16,7 @@ PSI values below are arithmetic means of the four sample PSI values, expressed a
 | FIVE | Tmem208 | 20.94 | 79.67 | +58.74 | [PNG](FIVE/samples.png) · [PDF](FIVE/samples.pdf) | [PNG](FIVE/groups.png) · [PDF](FIVE/groups.pdf) |
 | THREE | Thoc3 | 11.06 | 74.78 | +63.71 | [PNG](THREE/samples.png) · [PDF](THREE/samples.pdf) | [PNG](THREE/groups.png) · [PDF](THREE/groups.pdf) |
 | MXE | Aars2 | 82.62 | 53.38 | -29.24 | [PNG](MXE/samples.png) · [PDF](MXE/samples.pdf) | [PNG](MXE/groups.png) · [PDF](MXE/groups.pdf) |
-| RI | Khdrbs3 | 88.54 | 12.05 | -76.49 | [PNG](RI/samples.png) · [PDF](RI/samples.pdf) | [PNG](RI/groups.png) · [PDF](RI/groups.pdf) |
+| RI | Arhgef2 | 22.15 | 44.71 | +22.56 | [PNG](RI/samples.png) · [PDF](RI/samples.pdf) | [PNG](RI/groups.png) · [PDF](RI/groups.pdf) |
 | AFE | Tsen34 | 88.83 | 36.17 | -52.66 | [PNG](AFE/samples.png) · [PDF](AFE/samples.pdf) | [PNG](AFE/groups.png) · [PDF](AFE/groups.pdf) |
 | ALE | Ece2 | 20.72 | 78.40 | +57.68 | [PNG](ALE/samples.png) · [PDF](ALE/samples.pdf) | [PNG](ALE/groups.png) · [PDF](ALE/groups.pdf) |
 | MSE | Necap2 | 21.23 | 74.93 | +53.70 | [PNG](MSE/samples.png) · [PDF](MSE/samples.pdf) | [PNG](MSE/groups.png) · [PDF](MSE/groups.pdf) |
@@ -26,6 +26,8 @@ PSI values below are arithmetic means of the four sample PSI values, expressed a
 Events were selected for a clear visual difference between groups, using finite PSI in all eight samples, an original q value ≤ 0.01, an absolute mean PSI difference ≥ 15 percentage points, and non-overlapping sample PSI ranges separated by ≥ 8 percentage points. Among eligible events, readable exon structures, junction support, and compact plotting windows guided the selection. This is an illustrative gallery, not an unbiased sample of differential splicing events.
 
 Read depth and junction counts are raw, without library-size normalization or smoothing. Group tracks show arithmetic means across all four replicates, including zeros. Tracks within each figure share a depth scale, and the sample and group plots use the same genomic window. Axis limits can differ between those two plots because averaging changes the maximum depth. PSI definitions are those of the original run, including its event and strand conventions.
+
+The RI example additionally favors uniform coverage across the retained intron. For the selected Arhgef2 event, all 215 intronic bases (chr3:88633042–88633257, 0-based half-open) have nonzero coverage in every sample. The per-sample coefficient of variation of raw base-level intronic depth (population standard deviation / mean) ranges from 0.066 to 0.126 across the eight samples.
 
 The lower panel shows two representative transcripts from the assembled GTF, matched to the exon and junction structures of the alternative event paths. Reference transcript IDs are preferred when available; MSTRG IDs identify assembled transcripts. Only the displayed genomic window is shown. Red marks the target event, and arrows indicate strand direction. These models illustrate structure, not transcript abundance or the complete set of annotated isoforms.
 
@@ -54,7 +56,7 @@ decimal notation with up to three decimal places.
 
 ![MXE group-average sashimi plot](MXE/groups.png)
 
-### RI — Khdrbs3
+### RI — Arhgef2
 
 ![RI group-average sashimi plot](RI/groups.png)
 
