@@ -1,51 +1,40 @@
-import sys
-import os
-import logging
-# Configure logging
-logger = logging.getLogger(__name__)
+"""Read Shiba's merged counts (including the Tosa-based v1.0 format)."""
+import csv
+from pathlib import Path
+from .utils import coord2int, same_chrom
 
-def extract_junctions_in_region(shiba_path, chrom, start, end, junction_list = None) -> dict:
-	"""
-	Get read number for each junction in the specified region from Shiba output.
-	"""
-	junctions_bed = os.path.join(shiba_path, "junctions", "junctions.bed")
-	# Check if junctions.bed file exists
-	if not os.path.exists(junctions_bed):
-		logger.error(f"Junctions file not found: {junctions_bed}")
-		logger.error("Please double check and provide a valid Shiba output path")
-		raise FileNotFoundError(f"Junctions file not found: {junctions_bed}")
-		sys.exit(1)
-	# Initialize junction dictionary
-	junctions_dict = {}
-	# Read junctions.bed file
-	with open(junctions_bed, "r") as junctions:
-		for line in junctions:
-			line = line.strip()
-			# Skip header
-			if line.startswith("chr\tstart"):
-				samples = line.split("\t")[4:]
-				samples_col_dict = {sample: i for i, sample in enumerate(samples)}
-				continue
-			# Parse junction information
-			junc_cols = line.split("\t")[:4]
-			junc_chrom = junc_cols[0]
-			junc_start = junc_cols[1]
-			junc_end = junc_cols[2]
-			junc_ID = junc_cols[3]
-			junction_values = line.split("\t")[4:]
-			if junction_list:
-				if junc_ID not in junction_list:
-					continue
-				for sample, col in samples_col_dict.items():
-					if sample not in junctions_dict:
-						junctions_dict[sample] = {}
-					junctions_dict[sample][junc_ID] = int(junction_values[col])
-			else:
-				# Check if junction is within the specified region
-				if (junc_chrom == f"chr{chrom}" or junc_chrom == chrom) and (start < int(junc_start) < end) and (start < int(junc_end) < end):
-					# Get read number
-					for sample, col in samples_col_dict.items():
-						if sample not in junctions_dict:
-							junctions_dict[sample] = {}
-						junctions_dict[sample][junc_ID] = int(junction_values[col])
-	return junctions_dict
+
+def extract_junctions_in_region(shiba_path, chrom, start, end, junction_list=None):
+    """Read splice counts and explicitly requested one-base RI boundary counts."""
+    path = Path(shiba_path) / "junctions/junctions.bed"
+    with path.open(newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        required = {"chr", "start", "end", "ID"}
+        if not reader.fieldnames or not required.issubset(reader.fieldnames):
+            raise ValueError(f"Invalid Shiba junction table header: {path}")
+        samples = [key for key in reader.fieldnames if key not in required]
+        result = {sample: {} for sample in samples}
+        # Normalize only for matching; retain the event's ID for arc direction lookup.
+        targets = None if junction_list is None else {
+            (coord2int(j)[0].removeprefix("chr"), *coord2int(j)[1:]): j for j in junction_list
+        }
+        for row in reader:
+            jchrom, left, right = coord2int(row["ID"])
+            if not same_chrom(jchrom, chrom):
+                continue
+            boundary = right - left == 1
+            # Never turn arbitrary one-base counts into splice-junction arcs.
+            if boundary and targets is None:
+                continue
+            if not (start <= left <= end if boundary else start <= left < right - 1 <= end):
+                continue
+            key = (jchrom.removeprefix("chr"), left, right)
+            if targets is not None and key not in targets:
+                continue
+            junction_id = targets[key] if targets is not None else row["ID"]
+            for sample in samples:
+                count = int(row[sample])
+                if count < 0:
+                    raise ValueError(f"Negative junction count for {sample}: {junction_id}")
+                result[sample][junction_id] = count
+    return result
